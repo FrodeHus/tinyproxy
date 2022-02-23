@@ -58,24 +58,31 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+        var aggregatedEndpoints = new Dictionary<string, string>();
         foreach (var server in _config.UpstreamServers)
         {
             var endpoints = ParseSwagger(server);
-            _logger.LogInformation("Mapping {} endpoints for {} [{}]", endpoints.Count, server.Name, server.Url.ToString());
-            foreach (var endpoint in endpoints)
+            _logger.LogInformation("Got {} endpoints for {} [{}]", endpoints.Count, server.Name, server.Url.ToString());
+            foreach (var endpoint in endpoints.Where(endpoint => !aggregatedEndpoints.ContainsKey(endpoint) || server.Preferred))
             {
-                if (routeBuilder.DataSources.FirstOrDefault()?.Endpoints.Any(e => e.DisplayName == endpoint) ?? false) continue;
-                routeBuilder.Map(endpoint, async httpContext =>
-                {
-                    var error = await _forwarder.SendAsync(httpContext, server.Url.ToString(), httpClient, requestOptions);
-                    if (error != ForwarderError.None)
-                    {
-                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                        var exception = errorFeature.Exception;
-                    }
-                });
+                aggregatedEndpoints[endpoint] = server.Url.ToString();
             }
         }
+        
+        _logger.LogInformation("Proxying {} endpoints", aggregatedEndpoints.Count);
+        foreach (var (endpoint, server) in aggregatedEndpoints)
+        {
+            routeBuilder.Map(endpoint, async httpContext =>
+            {
+                var error = await _forwarder.SendAsync(httpContext, server, httpClient, requestOptions);
+                if (error != ForwarderError.None)
+                {
+                    var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                    var exception = errorFeature.Exception;
+                }
+            });
+        }
+        
         
         routeBuilder.Map("/{**catch-all}", async httpContext =>
         {
