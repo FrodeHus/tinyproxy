@@ -60,8 +60,8 @@ public class RouteConfigurator
             var endpoints = ParseSwagger(server);
             return endpoints.Select(e => new ProxyRoute
             {
-                LocalPrefix = "",
-                Remote = e,
+                Prefix = server.Prefix,
+                RelativePath = e,
                 RemoteServerBaseUrl = server.Url.ToString()
             }).ToList();
         }
@@ -75,7 +75,7 @@ public class RouteConfigurator
     private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
     {
         return server.Routes.Select(r => new ProxyRoute
-            {LocalPrefix = r.LocalPrefix, Remote = r.Remote, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
+            {RelativePath = r, Prefix = server.Prefix, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
     }
     
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
@@ -97,7 +97,7 @@ public class RouteConfigurator
             var serverRoutes = staticRoutes.Concat(swaggerRoutes).ToList();
             _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name, server.Url.ToString());
 
-            foreach (var route in serverRoutes.Where(endpoint => aggregatedRoutes.All(r => r.LocalPrefix != endpoint.LocalPrefix) || server.Preferred))
+            foreach (var route in serverRoutes.Where(endpoint => aggregatedRoutes.All(r => r.Prefix != endpoint.Prefix) || server.Preferred))
             {
                 aggregatedRoutes.Add(route);
             }
@@ -106,12 +106,12 @@ public class RouteConfigurator
         _logger.LogInformation("Proxying {} endpoints", aggregatedRoutes.Count);
         foreach (var route in aggregatedRoutes)
         {
-            var endpoint = route.LocalPrefix + route.Remote;
+            var endpoint = route.Prefix + route.RelativePath;
             routeBuilder.Map(endpoint, async httpContext =>
             {
-                if (!string.IsNullOrEmpty(route.LocalPrefix))
+                if (!string.IsNullOrEmpty(route.Prefix))
                 {
-                    httpContext.Request.Path = httpContext.Request.Path.Value.Replace(route.LocalPrefix, "");
+                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(route.Prefix, "");
                 }
                 var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient, requestOptions);
                 if (error != ForwarderError.None)

@@ -7,6 +7,11 @@ public class UpstreamServer
     /// </summary>
     public string Name { get; set; } = "<not set>";
     public Uri Url { get; set; } = new Uri("http://localhost:5000");
+
+    /// <summary>
+    /// Adds a prefix for all routes for this upstream server
+    /// </summary>
+    public string Prefix { get; set; } = "";
     /// <summary>
     /// Relative path to swagger JSON
     /// </summary>
@@ -18,5 +23,5 @@ public class UpstreamServer
     /// <summary>
     /// Static routes that are not defined in Swagger
     /// </summary>
-    public List<StaticRoute> Routes { get; set; } = new List<StaticRoute>();
+    public List<string> Routes { get; set; } = new List<string>();
 }
