@@ -6,7 +6,12 @@ using Yarp.ReverseProxy.Forwarder;
 var configFile = "proxyconfig.json";
 if (args.Length == 1)
 {
-    configFile = args[1];
+    configFile = args[0];
+    if (!File.Exists(configFile))
+    {
+        Console.WriteLine($"{configFile} does not exist.");
+        Environment.Exit(1);
+    }
 }
 
 var builder = WebApplication.CreateBuilder(args);
