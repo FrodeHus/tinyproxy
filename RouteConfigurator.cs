@@ -112,8 +112,10 @@ public class RouteConfigurator
             {
                 var existingRoute = aggregatedRoutes.Find(r =>
                     r.RelativePath == route.RelativePath && r.Prefix == route.Prefix);
-                if (existingRoute != null && server.Preferred)
+                if (existingRoute != null)
                 {
+                    if (!server.Preferred)
+                        continue;
                     aggregatedRoutes.Remove(existingRoute);
                 }
 
