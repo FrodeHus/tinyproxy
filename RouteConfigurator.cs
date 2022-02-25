@@ -13,7 +13,9 @@ public class RouteConfigurator
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<RouteConfigurator> _logger;
     private readonly ProxyConfig _config;
-    public RouteConfigurator(IOptions<ProxyConfig> config, IHttpForwarder forwarder, IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
+
+    public RouteConfigurator(IOptions<ProxyConfig> config, IHttpForwarder forwarder,
+        IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
     {
         _forwarder = forwarder;
         _httpClientFactory = httpClientFactory;
@@ -45,6 +47,7 @@ public class RouteConfigurator
             if (endpoints.Contains(endpoint)) continue;
             endpoints.Add(endpoint);
         }
+
         return endpoints;
     }
 
@@ -65,14 +68,16 @@ public class RouteConfigurator
                 RemoteServerBaseUrl = server.Url.ToString()
             }).ToList();
         }
-        catch(AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
+        catch (AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
         {
-            _logger.LogError("failed to retrieve swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
+            _logger.LogError("failed to retrieve swagger definition from {}{}", server.Url.ToString(),
+                server.SwaggerEndpoint);
             return new List<ProxyRoute>();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "unexpected error when trying to read swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
+            _logger.LogError(ex, "unexpected error when trying to read swagger definition from {}{}",
+                server.Url.ToString(), server.SwaggerEndpoint);
             return new List<ProxyRoute>();
         }
     }
@@ -82,7 +87,7 @@ public class RouteConfigurator
         return server.Routes.Select(r => new ProxyRoute
             {RelativePath = r, Prefix = server.Prefix, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
     }
-    
+
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
@@ -93,17 +98,25 @@ public class RouteConfigurator
             UseCookies = false
         });
 
-        var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+        var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
         var aggregatedRoutes = new List<ProxyRoute>();
         foreach (var server in _config.UpstreamServers)
         {
             var swaggerRoutes = GetSwaggerRoutes(server);
             var staticRoutes = GetStaticRoutes(server);
             var serverRoutes = staticRoutes.Concat(swaggerRoutes).ToList();
-            _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name, server.Url.ToString());
+            _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name,
+                server.Url.ToString());
 
-            foreach (var route in serverRoutes.Where(endpoint => aggregatedRoutes.All(r => r.Prefix != endpoint.Prefix) || server.Preferred))
+            foreach (var route in serverRoutes)
             {
+                var existingRoute = aggregatedRoutes.Find(r =>
+                    r.RelativePath == route.RelativePath && r.Prefix == route.Prefix);
+                if (existingRoute != null && server.Preferred)
+                {
+                    aggregatedRoutes.Remove(existingRoute);
+                }
+
                 aggregatedRoutes.Add(route);
             }
         }
@@ -118,7 +131,9 @@ public class RouteConfigurator
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(route.Prefix, "");
                 }
-                var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient, requestOptions);
+
+                var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient,
+                    requestOptions);
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
