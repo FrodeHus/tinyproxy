@@ -47,6 +47,37 @@ public class RouteConfigurator
         }
         return endpoints;
     }
+
+    private IEnumerable<ProxyRoute> GetSwaggerRoutes(UpstreamServer server)
+    {
+        if (string.IsNullOrEmpty(server.SwaggerEndpoint))
+        {
+            return new List<ProxyRoute>();
+        }
+
+        try
+        {
+            var endpoints = ParseSwagger(server);
+            return endpoints.Select(e => new ProxyRoute
+            {
+                LocalPrefix = "",
+                Remote = e,
+                RemoteServerBaseUrl = server.Url.ToString()
+            }).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "failed to retrieve swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
+            return new List<ProxyRoute>();
+        }
+    }
+
+    private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
+    {
+        return server.Routes.Select(r => new ProxyRoute
+            {LocalPrefix = r.LocalPrefix, Remote = r.Remote, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
+    }
+    
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
@@ -58,23 +89,31 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
-        var aggregatedEndpoints = new Dictionary<string, string>();
+        var aggregatedRoutes = new List<ProxyRoute>();
         foreach (var server in _config.UpstreamServers)
         {
-            var endpoints = ParseSwagger(server);
-            _logger.LogInformation("Got {} endpoints for {} [{}]", endpoints.Count, server.Name, server.Url.ToString());
-            foreach (var endpoint in endpoints.Where(endpoint => !aggregatedEndpoints.ContainsKey(endpoint) || server.Preferred))
+            var swaggerRoutes = GetSwaggerRoutes(server);
+            var staticRoutes = GetStaticRoutes(server);
+            var serverRoutes = staticRoutes.Concat(swaggerRoutes).ToList();
+            _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name, server.Url.ToString());
+
+            foreach (var route in serverRoutes.Where(endpoint => aggregatedRoutes.All(r => r.LocalPrefix != endpoint.LocalPrefix) || server.Preferred))
             {
-                aggregatedEndpoints[endpoint] = server.Url.ToString();
+                aggregatedRoutes.Add(route);
             }
         }
-        
-        _logger.LogInformation("Proxying {} endpoints", aggregatedEndpoints.Count);
-        foreach (var (endpoint, server) in aggregatedEndpoints)
+
+        _logger.LogInformation("Proxying {} endpoints", aggregatedRoutes.Count);
+        foreach (var route in aggregatedRoutes)
         {
+            var endpoint = route.LocalPrefix + route.Remote;
             routeBuilder.Map(endpoint, async httpContext =>
             {
-                var error = await _forwarder.SendAsync(httpContext, server, httpClient, requestOptions);
+                if (!string.IsNullOrEmpty(route.LocalPrefix))
+                {
+                    httpContext.Request.Path = httpContext.Request.Path.Value.Replace(route.LocalPrefix, "");
+                }
+                var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient, requestOptions);
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
@@ -82,8 +121,7 @@ public class RouteConfigurator
                 }
             });
         }
-        
-        
+
         routeBuilder.Map("/{**catch-all}", async httpContext =>
         {
             var error = await _forwarder.SendAsync(httpContext, "http://localhost:4444", httpClient, requestOptions);
