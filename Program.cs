@@ -1,18 +1,16 @@
-using System.Net;
-using System.Text.Json;
+using CommandLine;
 using SwaggerProxy;
-using Yarp.ReverseProxy.Forwarder;
 
-var configFile = "proxyconfig.json";
-if (args.Length == 1)
-{
-    configFile = args[0];
-    if (!File.Exists(configFile))
+var options = new ProxyOptions();
+
+Parser.Default.ParseArguments<ProxyOptions>(args)
+    .WithParsed<ProxyOptions>(o =>
     {
-        Console.WriteLine($"{configFile} does not exist.");
+        options = o;
+        if (File.Exists(options.ConfigFile)) return;
+        Console.WriteLine($"ERROR: {options.ConfigFile} not found");
         Environment.Exit(1);
-    }
-}
+    });
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpForwarder();
@@ -36,6 +34,6 @@ app.UseEndpoints(endpoints =>
         throw new ArgumentNullException(nameof(routeConfigurator));
     }
 
-    routeConfigurator.MapEndpoints(endpoints, configFile);
+    routeConfigurator.MapEndpoints(endpoints, options.ConfigFile);
 });
 app.Run();
