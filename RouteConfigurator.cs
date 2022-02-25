@@ -65,9 +65,14 @@ public class RouteConfigurator
                 RemoteServerBaseUrl = server.Url.ToString()
             }).ToList();
         }
+        catch(AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
+        {
+            _logger.LogError("failed to retrieve swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
+            return new List<ProxyRoute>();
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "failed to retrieve swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
+            _logger.LogError(ex, "unexpected error when trying to read swagger definition from {}{}", server.Url.ToString(), server.SwaggerEndpoint);
             return new List<ProxyRoute>();
         }
     }
