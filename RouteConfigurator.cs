@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Extensions.Options;
@@ -12,15 +13,19 @@ public class RouteConfigurator
     private readonly IHttpForwarder _forwarder;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<RouteConfigurator> _logger;
-    private readonly ProxyConfig _config;
 
-    public RouteConfigurator(IOptions<ProxyConfig> config, IHttpForwarder forwarder,
+    public RouteConfigurator(IHttpForwarder forwarder,
         IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
     {
         _forwarder = forwarder;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
-        _config = config.Value;
+    }
+
+    private ProxyConfig? LoadConfig(string configFile)
+    {
+        var configJson = File.ReadAllText(configFile);
+        return JsonSerializer.Deserialize<ProxyConfig>(configJson);
     }
 
     private List<string> ParseSwagger(UpstreamServer server)
@@ -88,8 +93,9 @@ public class RouteConfigurator
             {RelativePath = r, Prefix = server.Prefix, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder routeBuilder)
+    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, string configFile)
     {
+        var config = LoadConfig(configFile);
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
             UseProxy = false,
@@ -100,7 +106,7 @@ public class RouteConfigurator
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
         var aggregatedRoutes = new List<ProxyRoute>();
-        foreach (var server in _config.UpstreamServers)
+        foreach (var server in config.UpstreamServers)
         {
             var swaggerRoutes = GetSwaggerRoutes(server);
             var staticRoutes = GetStaticRoutes(server);

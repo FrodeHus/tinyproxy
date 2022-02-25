@@ -1,0 +1,23 @@
+{
+  "UpstreamServers": [
+    {
+      "Name": "MyDevAPI",
+      "Url": "http://localhost:5020",
+      "SwaggerEndpoint": "swagger/v1/swagger.json",
+      "Preferred": true
+    },
+    {
+      "Name": "MyDevAPI2",
+      "Url": "http://localhost:5010",
+      "SwaggerEndpoint": "swagger/v1/swagger.json"
+    },
+    {
+      "Name": "ifconfig",
+      "Prefix": "/myip",
+      "Url": "https://ifconfig.me",
+      "Routes": [
+        "/"
+      ]
+    }
+  ]
+}

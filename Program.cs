@@ -1,12 +1,19 @@
 using System.Net;
+using System.Text.Json;
 using SwaggerProxy;
 using Yarp.ReverseProxy.Forwarder;
+
+var configFile = "proxyconfig.json";
+if (args.Length == 1)
+{
+    configFile = args[1];
+}
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpForwarder();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<RouteConfigurator>();
-builder.Services.Configure<ProxyConfig>(builder.Configuration.GetSection("ProxyConfig"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,6 +30,7 @@ app.UseEndpoints(endpoints =>
     {
         throw new ArgumentNullException(nameof(routeConfigurator));
     }
-    routeConfigurator.MapEndpoints(endpoints);
+
+    routeConfigurator.MapEndpoints(endpoints, configFile);
 });
 app.Run();
