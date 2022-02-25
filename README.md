@@ -2,9 +2,13 @@
 
 Simple HTTP forwarder that reads swagger definitions from configured upstream servers and proxies requests to them.
 
-## Running the proxy
+## Installation
 
-Simply run `dotnet run -- <configfile>`
+Simply run `dotnet tool install --global Reothor.Lab.SwaggerProxy --version 1.0.0`
+
+## Run the proxy
+
+Create a config file (see below) and run `dotnet swaggerproxy <configfile>`
 
 ## Configuration
 
