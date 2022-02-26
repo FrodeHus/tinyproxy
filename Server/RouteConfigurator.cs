@@ -68,7 +68,8 @@ public class RouteConfigurator
             {
                 Prefix = server.Prefix,
                 RelativePath = e,
-                RemoteServerBaseUrl = server.Url.ToString()
+                RemoteServerBaseUrl = server.Url.ToString(),
+                RemoteServer = server.Name
             }).ToList();
         }
         catch (AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
@@ -88,7 +89,7 @@ public class RouteConfigurator
     private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
     {
         return server.Routes.Select(r => new ProxyRoute
-            {RelativePath = r, Prefix = server.Prefix, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
+            {RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder, string configFile)
@@ -141,7 +142,7 @@ public class RouteConfigurator
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(route.Prefix, "");
                 }
-
+                ProxyMetrics.IncomingRequest(route);
                 var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient,
                     requestOptions);
                 if (error != ForwarderError.None)

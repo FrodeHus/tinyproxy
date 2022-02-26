@@ -1,3 +1,4 @@
+using Prometheus;
 using TinyProxy.Infrastructure;
 
 namespace TinyProxy.Server;
@@ -23,6 +24,7 @@ public class Proxy
         }
 
         _app.UseRouting();
+        _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>
         {
             var routeConfigurator = endpoints.ServiceProvider.GetService<RouteConfigurator>();
@@ -32,6 +34,7 @@ public class Proxy
             }
 
             routeConfigurator.MapEndpoints(endpoints, options.ConfigFile);
+            endpoints.MapMetrics();
         });
     }
 
