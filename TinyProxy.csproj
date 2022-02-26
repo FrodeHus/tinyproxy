@@ -8,7 +8,7 @@
     <IsPackable>true</IsPackable>
     <ToolCommandName>tinyproxy</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <PackageId>Reothor.Lab.TinyProxy</PackageId>
     <Authors>Frode Hus</Authors>
     <Description>Simple proxy that lets you configure multiple endpoints with static routes or dynamic Swagger definition parsing.</Description>
