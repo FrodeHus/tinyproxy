@@ -6,8 +6,6 @@ on:
       tags:
         description: 'manual tag'
   push: 
-    branches:
-      - main
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
