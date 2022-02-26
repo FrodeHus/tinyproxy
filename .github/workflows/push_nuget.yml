@@ -31,6 +31,4 @@ jobs:
       - name: Pack
         run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
       - name: Push
-        run: dotnet nuget push Reothor.Lab.TinyProxy.${VERSION}.nupkg --source https://nuget.pkg.github.com/frodehus/index.json --api-key ${GITHUB_TOKEN}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
