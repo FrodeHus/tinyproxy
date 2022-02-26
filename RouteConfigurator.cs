@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace SwaggerProxy;
+namespace TinyProxy;
 
 public class RouteConfigurator
 {
@@ -96,6 +96,10 @@ public class RouteConfigurator
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder, string configFile)
     {
         var config = LoadConfig(configFile);
+        if (config == null)
+        {
+            throw new ArgumentNullException(nameof(config));
+        }
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
             UseProxy = false,
@@ -145,7 +149,8 @@ public class RouteConfigurator
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                    var exception = errorFeature.Exception;
+                    var exception = errorFeature?.Exception;
+                    _logger.LogError(exception, "failed proxying {}", endpoint);
                 }
             });
         }
@@ -156,7 +161,8 @@ public class RouteConfigurator
             if (error != ForwarderError.None)
             {
                 var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                var exception = errorFeature.Exception;
+                var exception = errorFeature?.Exception;
+                _logger.LogError(exception, "failed proxying {}", httpContext.Request.Query);
             }
         });
     }
