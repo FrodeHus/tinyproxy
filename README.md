@@ -1,5 +1,7 @@
 # TinyProxy
 
+[![.NET](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml)
+
 Simple HTTP forwarder that reads swagger definitions from configured upstream servers and proxies requests to them.
 
 ## Installation
