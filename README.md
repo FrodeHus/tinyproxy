@@ -1,7 +1,7 @@
 # TinyProxy
 
 [![.NET](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml)
-[![NuGet](https://github.com/FrodeHus/tinyproxy/actions/workflows/push_nuget.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/push_nuget.yml)
+
 
 Simple HTTP forwarder that reads swagger definitions from configured upstream servers and proxies requests to them.
 
@@ -17,7 +17,14 @@ Create a config file (see below) and run `dotnet TinyProxy start -f <configfile>
 
 ## Configuration
 
-Create a config file (run `dotnet tinyproxy configure --init -f <configfile>` to get an empty config file):
+### Quick start
+
+To get a config file started, run `dotnet tinyproxy configure --init -f <configfile> --url https://<server> --name MyRemote1`.
+
+You can also provide optional parameters such as `--prefix` and `--swagger`.
+
+### Manual config
+Create a config file such as `proxy_dev.json`:
 
 ```json
 {
