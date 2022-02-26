@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
     <None Include="README.md" Pack="true" PackagePath="\" />
