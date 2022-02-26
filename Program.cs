@@ -1,5 +1,5 @@
 using CommandLine;
-using SwaggerProxy;
+using TinyProxy;
 
 var options = new ProxyOptions();
 

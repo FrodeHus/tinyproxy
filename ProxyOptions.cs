@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace SwaggerProxy;
+namespace TinyProxy;
 
 public class ProxyOptions
 {

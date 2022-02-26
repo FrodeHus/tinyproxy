@@ -1,4 +1,4 @@
-namespace SwaggerProxy;
+namespace TinyProxy;
 
 public class UpstreamServer
 {
