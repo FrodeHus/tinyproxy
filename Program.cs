@@ -2,14 +2,13 @@ using CommandLine;
 using TinyProxy.Infrastructure;
 using TinyProxy.Server;
 
-var options = new ProxyOptions();
 
 Parser.Default.ParseArguments<ProxyOptions, ProxyConfigure>(args)
     .MapResult(
         (ProxyOptions o) =>
         {
             var proxy = new Proxy();
-            proxy.Configure(args, options);
+            proxy.Configure(args, o);
             proxy.Start();
             return 0;
         },
