@@ -6,13 +6,15 @@ Simple HTTP forwarder that reads swagger definitions from configured upstream se
 
 Simply run `dotnet tool install --global Reothor.Lab.TinyProxy`
 
+Usage can be found by executing `dotnet tinyproxy help`.
+
 ## Run the proxy
 
-Create a config file (see below) and run `dotnet TinyProxy <configfile>`
+Create a config file (see below) and run `dotnet TinyProxy start -f <configfile>`
 
 ## Configuration
 
-Create a config file (`proxyconfig.json` for example):
+Create a config file (run `dotnet tinyproxy configure --init -f <configfile>` to get an empty config file):
 
 ```json
 {
