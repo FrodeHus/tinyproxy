@@ -6,9 +6,38 @@ public class ProxyConfig
 {
     public List<UpstreamServer> UpstreamServers { get; set; } = new();
 
-    public static void Initialize(string configFile)
+    public static void Initialize(ProxyConfigure config)
     {
-        var emptyConfig = JsonSerializer.Serialize(new ProxyConfig(), new JsonSerializerOptions{WriteIndented = true});
-        File.WriteAllText(configFile, emptyConfig);
+        if (string.IsNullOrEmpty(config.ConfigFile))
+        {
+            throw new ArgumentNullException(nameof(config.ConfigFile));
+        }
+
+        if (string.IsNullOrEmpty(config.Url))
+        {
+            throw new ArgumentNullException(nameof(config.Url));
+        }
+
+        if (string.IsNullOrEmpty(config.Name))
+        {
+            throw new ArgumentNullException(nameof(config.Name));
+        }
+
+        var proxyConfig = new ProxyConfig
+        {
+            UpstreamServers = new List<UpstreamServer>
+            {
+                new ()
+                {
+                    Url = new Uri(config.Url),
+                    SwaggerEndpoint = config.SwaggerEndpoint ?? "",
+                    Prefix = config.Prefix ?? "",
+                    Name = config.Name
+                }
+            }
+        };
+        
+        var newConfig = JsonSerializer.Serialize(proxyConfig, new JsonSerializerOptions{WriteIndented = true});
+        File.WriteAllText(config.ConfigFile, newConfig);
     }
 }
