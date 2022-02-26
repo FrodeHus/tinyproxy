@@ -7,6 +7,7 @@ Parser.Default.ParseArguments<ProxyOptions>(args)
     .WithParsed<ProxyOptions>(o =>
     {
         options = o;
+        if(string.IsNullOrEmpty(options.ConfigFile)) Environment.Exit(0);
         if (File.Exists(options.ConfigFile)) return;
         Console.WriteLine($"ERROR: {options.ConfigFile} not found");
         Environment.Exit(1);
