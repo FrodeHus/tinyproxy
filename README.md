@@ -55,3 +55,9 @@ This will proxy 3 servers where:
 
 - MyDevAPI2 is preferred so any routes that are duplicates between services will be overriden by this one
 - RemoteNonSwagger has no Swagger definition available, so we define static routes for this. Available at `/weather/weatherforecast` due to the `Prefix` property.
+
+## Metrics
+
+TinyProxy has a Prometheus-enabled endpoint which provides insights into which remote server and endpoint are receiving proxied requests.
+
+This metric is available at `/metrics`.
