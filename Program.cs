@@ -21,7 +21,7 @@ Parser.Default.ParseArguments<ProxyOptions, ProxyConfigure>(args)
             }
             if (c.Initialize)
             {
-                ProxyConfig.Initialize(c.ConfigFile);
+                ProxyConfig.Initialize(c);
             }
             
             return 0;
