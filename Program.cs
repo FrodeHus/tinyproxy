@@ -23,6 +23,10 @@ Parser.Default.ParseArguments<ProxyOptions, ProxyConfigure>(args)
             {
                 ProxyConfig.Initialize(c);
             }
+            else
+            {
+                ProxyConfig.UpdateConfig(c);
+            }
             
             return 0;
         },
