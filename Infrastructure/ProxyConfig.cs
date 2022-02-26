@@ -1,4 +1,4 @@
-namespace TinyProxy;
+namespace TinyProxy.Infrastructure;
 
 public class ProxyConfig
 {

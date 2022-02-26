@@ -1,12 +1,10 @@
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using Microsoft.Extensions.Options;
+using TinyProxy.Infrastructure;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace TinyProxy;
+namespace TinyProxy.Server;
 
 public class RouteConfigurator
 {
