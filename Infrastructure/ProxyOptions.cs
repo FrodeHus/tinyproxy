@@ -9,4 +9,7 @@ public class ProxyOptions
 
         [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
         public bool Verbose { get; set; }
+
+        [Option('c', "catch-all", HelpText = "Any requests that is not handled by any configured remote servers should be sent to here")]
+        public string? UnknownEndpointsPort { get; set; }
 }

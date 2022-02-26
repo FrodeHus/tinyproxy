@@ -153,7 +153,7 @@ public class RouteConfigurator
                 }
             });
         }
-
+        
         routeBuilder.Map("/{**catch-all}", async httpContext =>
         {
             var error = await _forwarder.SendAsync(httpContext, "http://localhost:4444", httpClient, requestOptions);
