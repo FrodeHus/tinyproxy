@@ -2,6 +2,9 @@ name: NuGet
 
 on:
   workflow_dispatch:
+    inputs:
+      tags:
+        description: 'manual tag'
   push: 
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
