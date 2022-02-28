@@ -7,9 +7,19 @@ Simple HTTP forwarder that reads swagger definitions from configured upstream se
 
 ## Installation
 
+### Dotnet Tool
 Simply run `dotnet tool install --global Reothor.Lab.TinyProxy`
 
 Usage can be found by executing `dotnet tinyproxy help`.
+
+### Docker
+Usage information: 
+
+`docker run frodehus/tinyproxy:latest --help`
+
+Quickstart: 
+
+`docker run -it -v /<path>/proxyconfig.json:/config.json -p 8080:80 -p 8443:443 frodehus/tinyproxy:latest start -f /config.json`
 
 ## Run the proxy
 
