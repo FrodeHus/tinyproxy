@@ -19,6 +19,7 @@
     <PackageTags>dotnet</PackageTags>
     <Copyright>Copyright 2022 - Frode Hus</Copyright>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
