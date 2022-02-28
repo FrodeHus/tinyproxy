@@ -12,10 +12,10 @@ WORKDIR "/src/"
 RUN dotnet build "TinyProxy.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "TinyProxy.csproj" -c Release -o /app/publish --self-contained true --runtime linux-x64 -p:PublishTrimmed=true -p:PublishSingleFile=true
+RUN dotnet publish "TinyProxy.csproj" -c Release -o /app/publish 
 
 FROM base AS final
 USER 100000
 WORKDIR /app
 COPY --chown=100000:100000 --from=publish /app/publish .
-ENTRYPOINT ["./TinyProxy"]
+ENTRYPOINT ["dotnet", "TinyProxy.dll"]
