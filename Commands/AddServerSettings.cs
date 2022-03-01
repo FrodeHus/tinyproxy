@@ -18,4 +18,9 @@ public class AddServerSettings : ConfigurationSettings
     [Description("Prefix all routes belonging to this server with <PREFIX>")]
     [CommandOption("-p|--prefix <PREFIX>")]
     public string Prefix { get; set; } = "";
+
+    [Description("Any paths defined on this server will be preferred over any duplicates found in non-preferred servers")]
+    [CommandOption("-x|--preferred")]
+    public bool? IsPreferred { get; set; }
+    
 }

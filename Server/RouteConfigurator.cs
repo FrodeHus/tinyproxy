@@ -1,7 +1,9 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Spectre.Console;
 using TinyProxy.Infrastructure;
+using TinyProxy.OpenAPI;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace TinyProxy.Server;
@@ -89,16 +91,14 @@ public class RouteConfigurator
     private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
     {
         return server.Routes.Select(r => new ProxyRoute
-            {RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
+        {
+            RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name,
+            RemoteServerBaseUrl = server.Url.ToString()
+        }).ToList();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, string configFile)
+    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes)
     {
-        var config = LoadConfig(configFile);
-        if (config == null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
             UseProxy = false,
@@ -108,61 +108,61 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
-        var aggregatedRoutes = new List<ProxyRoute>();
-        foreach (var server in config.UpstreamServers)
+        var uniquePaths = routes.GroupBy(kvp => string.Join(kvp.Prefix, kvp.RelativePath), kvp => kvp,
+            (path, handlers) => new {Path = path, Handlers = handlers});
+        foreach (var item in uniquePaths)
         {
-            var swaggerRoutes = GetSwaggerRoutes(server);
-            var staticRoutes = GetStaticRoutes(server);
-            var serverRoutes = staticRoutes.Concat(swaggerRoutes).ToList();
-            _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name,
-                server.Url.ToString());
-
-            foreach (var route in serverRoutes)
+            routeBuilder.Map(item.Path, async httpContext =>
             {
-                var existingRoute = aggregatedRoutes.Find(r =>
-                    r.RelativePath == route.RelativePath && r.Prefix == route.Prefix);
-                if (existingRoute != null)
+                var verb = httpContext.Request.Method;
+                if(!TryFindHandler(item.Handlers, item.Path, verb, out var handler))
                 {
-                    if (!server.Preferred)
-                        continue;
-                    aggregatedRoutes.Remove(existingRoute);
+                    return;
+                }
+                AnsiConsole.Markup($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] ");
+                if (!string.IsNullOrEmpty(handler.Prefix))
+                {
+                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
                 }
 
-                aggregatedRoutes.Add(route);
-            }
-        }
-
-        _logger.LogInformation("Proxying {} endpoints", aggregatedRoutes.Count);
-        foreach (var route in aggregatedRoutes)
-        {
-            var endpoint = route.Prefix + route.RelativePath;
-            routeBuilder.Map(endpoint, async httpContext =>
-            {
-                if (!string.IsNullOrEmpty(route.Prefix))
-                {
-                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(route.Prefix, "");
-                }
-                ProxyMetrics.IncomingRequest(route);
-                var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient,
+                ProxyMetrics.IncomingRequest(handler);
+                var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
+                AnsiConsole.MarkupLine($"[cyan1]{httpContext.Response.StatusCode}[/]");
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                     var exception = errorFeature?.Exception;
-                    _logger.LogError(exception, "failed proxying {}", endpoint);
+                    _logger.LogError(exception, "failed proxying {}", item.Path);
                 }
             });
         }
-        
-        routeBuilder.Map("/{**catch-all}", async httpContext =>
+    }
+
+    private static bool TryFindHandler(IEnumerable<ProxyRoute> allHandlers, string path, string verb,
+        out ProxyRoute handler)
+    {
+        var handlers = allHandlers.Where(
+            h => h.Verb?.ToString() == verb && path == string.Join(h.Prefix, h.RelativePath)).ToList();
+        if (!handlers.Any())
         {
-            var error = await _forwarder.SendAsync(httpContext, "http://localhost:4444", httpClient, requestOptions);
-            if (error != ForwarderError.None)
+            AnsiConsole.MarkupLine($"[red]Handler for {path} was not found[/]");
+            handler = new ProxyRoute();
+            return false;
+        }
+
+        if (handlers.Count > 1)
+        {
+            if (handlers.Any(r => r.Preferred))
             {
-                var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                var exception = errorFeature?.Exception;
-                _logger.LogError(exception, "failed proxying {}", httpContext.Request.Query);
+                handler = handlers.First(r => r.Preferred);
+                AnsiConsole.MarkupLine($"[yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
+                return true;
             }
-        });
+            AnsiConsole.MarkupLine($"Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
+        }
+
+        handler = handlers.First();
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 using Prometheus;
 using TinyProxy.Commands;
 using TinyProxy.Infrastructure;
+using TinyProxy.OpenAPI;
 
 namespace TinyProxy.Server;
 
@@ -8,9 +9,8 @@ public class Proxy
 {
     private WebApplication? _app;
     
-    public void Configure(ProxySettings settings)
+    public void Configure(List<ProxyRoute> routes)
     {
-        if(string.IsNullOrEmpty(settings.ConfigFile)) Environment.Exit(0);
         
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddHttpForwarder();
@@ -34,7 +34,7 @@ public class Proxy
                 throw new ArgumentNullException(nameof(routeConfigurator));
             }
 
-            routeConfigurator.MapEndpoints(endpoints, settings.ConfigFile);
+            routeConfigurator.MapEndpoints(endpoints, routes);
             endpoints.MapMetrics();
         });
     }
