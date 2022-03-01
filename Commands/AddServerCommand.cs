@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Spectre.Console.Cli;
 using TinyProxy.Infrastructure;
 
@@ -18,7 +17,8 @@ public class AddServerCommand : Command<AddServerSettings>
             Name = settings.Name,
             Url = new Uri(settings.BaseUrl),
             SwaggerEndpoint = settings.SwaggerEndpoint,
-            Prefix = settings.Prefix
+            Prefix = settings.Prefix,
+            Preferred = settings.IsPreferred.HasValue && settings.IsPreferred.Value
         };
 
         proxyConfig.UpstreamServers.Add(newUpstream);
