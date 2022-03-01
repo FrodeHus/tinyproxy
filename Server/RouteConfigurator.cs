@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Spectre.Console;
 using TinyProxy.Infrastructure;
 using TinyProxy.OpenAPI;
 using Yarp.ReverseProxy.Forwarder;
@@ -104,24 +105,32 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
-
-        foreach (var route in routes)
+        var uniquePaths = routes.GroupBy(kvp => string.Join(kvp.Prefix,kvp.RelativePath), kvp => kvp);
+        foreach (var pathKvp in uniquePaths)
         {
-            var endpoint = route.Prefix + route.RelativePath;
-            routeBuilder.Map(endpoint, async httpContext =>
+            routeBuilder.Map(pathKvp.Key, async httpContext =>
             {
-                if (!string.IsNullOrEmpty(route.Prefix))
+                var allHandlers = pathKvp.ToList();
+                var verb = httpContext.Request.Method;
+                var handler = allHandlers.FirstOrDefault(
+                    h => h.Verb?.ToString() == verb && pathKvp.Key == string.Join(h.Prefix, h.RelativePath));
+                if (handler == null)
                 {
-                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(route.Prefix, "");
+                    AnsiConsole.MarkupLine($"[red]Handler for {pathKvp.Key} was not found[/]");
+                    return;
                 }
-                ProxyMetrics.IncomingRequest(route);
-                var error = await _forwarder.SendAsync(httpContext, route.RemoteServerBaseUrl, httpClient,
+                if (!string.IsNullOrEmpty(handler.Prefix))
+                {
+                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
+                }
+                ProxyMetrics.IncomingRequest(handler);
+                var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                     var exception = errorFeature?.Exception;
-                    _logger.LogError(exception, "failed proxying {}", endpoint);
+                    _logger.LogError(exception, "failed proxying {}", pathKvp.Key);
                 }
             });
         }

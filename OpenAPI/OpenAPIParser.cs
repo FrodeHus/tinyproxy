@@ -7,11 +7,12 @@ namespace TinyProxy.OpenAPI;
 public class OpenApiParser
 {
     private readonly Dictionary<UpstreamServer, OpenApiDocument> _apis = new ();
-
+    private readonly List<ProxyRoute> _allRoutes = new();
     public async Task ParseConfigFile(string configFile)
     {
         var config = ConfigUtils.ReadOrCreateConfig(configFile);
         await ParseConfig(config);
+        _allRoutes.AddRange(GetAggregatedProxyRoutes());
     }
 
     private async Task ParseConfig(ProxyConfig config)
@@ -38,32 +39,66 @@ public class OpenApiParser
         foreach (var server in _apis.Keys)
         {
             var normalizedPaths = GetNormalizedPathsForServer(server);
-            var routes = normalizedPaths.Select(path => new ProxyRoute
+            var routes = normalizedPaths.SelectMany(kvp =>
             {
-                Prefix = server.Prefix,
-                RemoteServer = server.Name,
-                RemoteServerBaseUrl = server.Url.ToString(),
-                RelativePath = path
+                return kvp.Value.Select(path =>
+                    new ProxyRoute
+                    {
+                        Verb = kvp.Key,
+                        Prefix = server.Prefix,
+                        RemoteServerBaseUrl = server.Url.ToString(),
+                        RelativePath = path,
+                        RemoteServer = server.Name
+                    });
             });
-            
-            endpoints.AddRange(routes.Where(r => endpoints.All(e => e.RelativePath != r.RelativePath)));
+            endpoints.AddRange(routes);
         }
+        
         return endpoints;
     }
 
-    private List<string> GetNormalizedPathsForServer(UpstreamServer server)
+    public ProxyRoute FindRoute(string path, HttpMethod method, string prefix = "")
     {
-        var api = _apis[server];
-        var endpoints = new List<string>();
-        foreach (var (path, pathDefinition) in _apis.Values.SelectMany(p => p.Paths))
+        var route = _allRoutes.Where(r => r.RelativePath == path && r.Verb == method && r.Prefix == prefix).ToList();
+        if (route.Count > 1)
         {
-            var normalizedPath = NormalizePath(path, pathDefinition);
-            
-            if (endpoints.Contains(normalizedPath)) continue;
-            endpoints.Add(normalizedPath);
+            throw new ArgumentException(
+                $"failed to find route for {method} {path} - too many matches: {route.Count}");
         }
 
-        return endpoints;
+        return route.FirstOrDefault() ?? new ProxyRoute();
+    }
+
+    private Dictionary<HttpMethod, List<string>> GetNormalizedPathsForServer(UpstreamServer server)
+    {
+        var paths = new Dictionary<HttpMethod, List<string>>();
+        foreach (var (path, pathDefinition) in _apis.Values.SelectMany(p => p.Paths))
+        {
+            foreach (var operation in pathDefinition.Operations)
+            {
+                var verb = operation.Key switch
+                {
+                    OperationType.Get => HttpMethod.Get,
+                    OperationType.Put => HttpMethod.Put,
+                    OperationType.Post => HttpMethod.Post,
+                    OperationType.Delete => HttpMethod.Delete,
+                    OperationType.Options => HttpMethod.Options,
+                    OperationType.Head => HttpMethod.Head,
+                    OperationType.Patch => HttpMethod.Patch,
+                    OperationType.Trace => HttpMethod.Trace,
+                    _ => throw new ArgumentOutOfRangeException(operation.Key.ToString())
+                };
+                var normalizedPath = NormalizePath(path, operation.Value);
+                if (!paths.ContainsKey(verb))
+                {
+                    paths.Add(verb, new List<string>());
+                }
+                
+                paths[verb].Add(normalizedPath);
+            }
+        }
+
+        return paths;
         
     }
 
@@ -74,11 +109,11 @@ public class OpenApiParser
     /// <param name="path"></param>
     /// <param name="pathItem"></param>
     /// <returns></returns>
-    private static string NormalizePath(string path, OpenApiPathItem pathItem)
+    private static string NormalizePath(string path, OpenApiOperation operation)
     {
         var paramIndex = 0;
         var normalizedPath = path;
-        foreach (var param in pathItem.Operations.Values.SelectMany(o => o.Parameters.Where(p => p.In == ParameterLocation.Path)))
+        foreach (var param in operation.Parameters.Where(p => p.In == ParameterLocation.Path))
         {
             normalizedPath = normalizedPath.Replace(param.Name, $"param{paramIndex}");
             paramIndex++;
