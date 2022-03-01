@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using TinyProxy.Infrastructure;
+using TinyProxy.OpenAPI;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace TinyProxy.Server;
@@ -11,7 +12,7 @@ public class RouteConfigurator
     private readonly IHttpForwarder _forwarder;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<RouteConfigurator> _logger;
-
+    
     public RouteConfigurator(IHttpForwarder forwarder,
         IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
     {
@@ -92,13 +93,8 @@ public class RouteConfigurator
             {RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, string configFile)
+    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes)
     {
-        var config = LoadConfig(configFile);
-        if (config == null)
-        {
-            throw new ArgumentNullException(nameof(config));
-        }
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
             UseProxy = false,
@@ -108,32 +104,8 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
-        var aggregatedRoutes = new List<ProxyRoute>();
-        foreach (var server in config.UpstreamServers)
-        {
-            var swaggerRoutes = GetSwaggerRoutes(server);
-            var staticRoutes = GetStaticRoutes(server);
-            var serverRoutes = staticRoutes.Concat(swaggerRoutes).ToList();
-            _logger.LogInformation("Got {} endpoints for {} [{}]", serverRoutes.Count, server.Name,
-                server.Url.ToString());
 
-            foreach (var route in serverRoutes)
-            {
-                var existingRoute = aggregatedRoutes.Find(r =>
-                    r.RelativePath == route.RelativePath && r.Prefix == route.Prefix);
-                if (existingRoute != null)
-                {
-                    if (!server.Preferred)
-                        continue;
-                    aggregatedRoutes.Remove(existingRoute);
-                }
-
-                aggregatedRoutes.Add(route);
-            }
-        }
-
-        _logger.LogInformation("Proxying {} endpoints", aggregatedRoutes.Count);
-        foreach (var route in aggregatedRoutes)
+        foreach (var route in routes)
         {
             var endpoint = route.Prefix + route.RelativePath;
             routeBuilder.Map(endpoint, async httpContext =>
