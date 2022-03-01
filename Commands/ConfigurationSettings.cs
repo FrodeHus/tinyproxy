@@ -4,6 +4,6 @@ namespace TinyProxy.Commands;
 
 public class ConfigurationSettings : CommandSettings
 {
-    [CommandArgument(0, "<CONFIG FILE>")]
-    public string ConfigFile { get; set; }
+    [CommandOption("-f|--config-file <CONFIG_FILE>")]
+    public string ConfigFile { get; set; } = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tinyproxyconfig.json");
 }

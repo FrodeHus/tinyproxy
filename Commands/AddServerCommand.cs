@@ -10,13 +10,8 @@ public class AddServerCommand : Command<AddServerSettings>
     {
         if (string.IsNullOrEmpty(settings.Name)) throw new ArgumentNullException(nameof(settings.Name));
         if (string.IsNullOrEmpty(settings.BaseUrl)) throw new ArgumentNullException(nameof(settings.BaseUrl));
-        
-        var existingConfig = File.ReadAllText(settings.ConfigFile);
-        var proxyConfig = JsonSerializer.Deserialize<ProxyConfig>(existingConfig);
-        if (proxyConfig == null)
-        {
-            throw new Exception($"failed loading config from {settings.ConfigFile}");
-        }
+
+        var proxyConfig = ConfigUtils.ReadOrCreateConfig(settings.ConfigFile);
 
         var newUpstream = new UpstreamServer
         {
@@ -27,8 +22,7 @@ public class AddServerCommand : Command<AddServerSettings>
         };
 
         proxyConfig.UpstreamServers.Add(newUpstream);
-        var newConfig = JsonSerializer.Serialize(proxyConfig, new JsonSerializerOptions{WriteIndented = true});
-        File.WriteAllText(settings.ConfigFile, newConfig);
+        ConfigUtils.WriteConfig(proxyConfig, settings.ConfigFile);
         return 0;
     }
 }
