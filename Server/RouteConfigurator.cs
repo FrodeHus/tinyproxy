@@ -136,7 +136,17 @@ public class RouteConfigurator
                     _logger.LogError(exception, "failed proxying {}", item.Path);
                 }
             });
+
         }
+
+        routeBuilder.Map("/{**catch-all}", httpContext =>
+        {
+            var verb = httpContext.Request.Method;
+            var path = httpContext.Request.Path;
+            AnsiConsole.MarkupLine($"[yellow]No route defined for [/][red]{verb} {path}[/]");
+            httpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+            return Task.CompletedTask;
+        });
     }
 
     private static bool TryFindHandler(IEnumerable<ProxyRoute> allHandlers, string path, string verb,
