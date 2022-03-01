@@ -20,7 +20,7 @@ public class AddServerSettings : ConfigurationSettings
     public string Prefix { get; set; } = "";
 
     [Description("Any paths defined on this server will be preferred over any duplicates found in non-preferred servers")]
-    [CommandOption("-p|--preferred")]
+    [CommandOption("-x|--preferred")]
     public bool? IsPreferred { get; set; }
     
 }

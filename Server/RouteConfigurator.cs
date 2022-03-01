@@ -119,7 +119,7 @@ public class RouteConfigurator
                 {
                     return;
                 }
-                AnsiConsole.MarkupLine($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/]");
+                AnsiConsole.Markup($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] ");
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
@@ -128,6 +128,7 @@ public class RouteConfigurator
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
+                AnsiConsole.MarkupLine($"[cyan1]{httpContext.Response.StatusCode}[/]");
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
