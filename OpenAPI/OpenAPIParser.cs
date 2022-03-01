@@ -48,6 +48,7 @@ public class OpenApiParser
                         Prefix = server.Prefix,
                         RemoteServerBaseUrl = server.Url.ToString(),
                         RelativePath = path,
+                        Preferred = server.Preferred,
                         RemoteServer = server.Name
                     });
             });

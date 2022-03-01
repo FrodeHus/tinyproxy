@@ -13,7 +13,7 @@ public class RouteConfigurator
     private readonly IHttpForwarder _forwarder;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<RouteConfigurator> _logger;
-    
+
     public RouteConfigurator(IHttpForwarder forwarder,
         IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
     {
@@ -91,7 +91,10 @@ public class RouteConfigurator
     private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
     {
         return server.Routes.Select(r => new ProxyRoute
-            {RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name, RemoteServerBaseUrl = server.Url.ToString()}).ToList();
+        {
+            RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name,
+            RemoteServerBaseUrl = server.Url.ToString()
+        }).ToList();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes)
@@ -105,24 +108,23 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
-        var uniquePaths = routes.GroupBy(kvp => string.Join(kvp.Prefix,kvp.RelativePath), kvp => kvp);
-        foreach (var pathKvp in uniquePaths)
+        var uniquePaths = routes.GroupBy(kvp => string.Join(kvp.Prefix, kvp.RelativePath), kvp => kvp,
+            (path, handlers) => new {Path = path, Handlers = handlers});
+        foreach (var item in uniquePaths)
         {
-            routeBuilder.Map(pathKvp.Key, async httpContext =>
+            routeBuilder.Map(item.Path, async httpContext =>
             {
-                var allHandlers = pathKvp.ToList();
                 var verb = httpContext.Request.Method;
-                var handler = allHandlers.FirstOrDefault(
-                    h => h.Verb?.ToString() == verb && pathKvp.Key == string.Join(h.Prefix, h.RelativePath));
-                if (handler == null)
+                if(!TryFindHandler(item.Handlers, item.Path, verb, out var handler))
                 {
-                    AnsiConsole.MarkupLine($"[red]Handler for {pathKvp.Key} was not found[/]");
                     return;
                 }
+                AnsiConsole.MarkupLine($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/]");
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
                 }
+
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
@@ -130,20 +132,36 @@ public class RouteConfigurator
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                     var exception = errorFeature?.Exception;
-                    _logger.LogError(exception, "failed proxying {}", pathKvp.Key);
+                    _logger.LogError(exception, "failed proxying {}", item.Path);
                 }
             });
         }
-        
-        routeBuilder.Map("/{**catch-all}", async httpContext =>
+    }
+
+    private static bool TryFindHandler(IEnumerable<ProxyRoute> allHandlers, string path, string verb,
+        out ProxyRoute handler)
+    {
+        var handlers = allHandlers.Where(
+            h => h.Verb?.ToString() == verb && path == string.Join(h.Prefix, h.RelativePath)).ToList();
+        if (!handlers.Any())
         {
-            var error = await _forwarder.SendAsync(httpContext, "http://localhost:4444", httpClient, requestOptions);
-            if (error != ForwarderError.None)
+            AnsiConsole.MarkupLine($"[red]Handler for {path} was not found[/]");
+            handler = new ProxyRoute();
+            return false;
+        }
+
+        if (handlers.Count > 1)
+        {
+            if (handlers.Any(r => r.Preferred))
             {
-                var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                var exception = errorFeature?.Exception;
-                _logger.LogError(exception, "failed proxying {}", httpContext.Request.Query);
+                handler = handlers.First(r => r.Preferred);
+                AnsiConsole.MarkupLine($"[yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
+                return true;
             }
-        });
+            AnsiConsole.MarkupLine($"Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
+        }
+
+        handler = handlers.First();
+        return true;
     }
 }
