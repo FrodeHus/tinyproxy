@@ -153,7 +153,7 @@ public class RouteConfigurator
         out ProxyRoute handler)
     {
         var handlers = allHandlers.Where(
-            h => h.Verb?.ToString() == verb && path == string.Join(h.Prefix, h.RelativePath)).ToList();
+            h => (h.Verb?.ToString() == verb || verb == HttpMethod.Options.ToString()) && path == string.Join(h.Prefix, h.RelativePath)).ToList();
         if (!handlers.Any())
         {
             AnsiConsole.MarkupLine($"[red]Handler for {path} was not found[/]");

@@ -9,7 +9,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "commandLineArgs": "start /home/frode/proxyconfig.json"
+      "commandLineArgs": "start"
     }
   }
 }
