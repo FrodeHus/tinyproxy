@@ -22,7 +22,7 @@ OPTIONS:
 COMMANDS:
     start      
     config  
-`` 
+```
 
 ### Docker
 Usage information: 
