@@ -119,7 +119,6 @@ public class RouteConfigurator
                 {
                     return;
                 }
-                AnsiConsole.Markup($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] ");
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
@@ -128,7 +127,7 @@ public class RouteConfigurator
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
-                AnsiConsole.MarkupLine($"[cyan1]{httpContext.Response.StatusCode}[/]");
+                AnsiConsole.MarkupLine($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] [cyan1]{httpContext.Response.StatusCode}[/]");
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
@@ -143,7 +142,7 @@ public class RouteConfigurator
         {
             var verb = httpContext.Request.Method;
             var path = httpContext.Request.Path;
-            AnsiConsole.MarkupLine($"[yellow]No route defined for [/][red]{verb} {path}[/]");
+            AnsiConsole.MarkupLine($"[yellow]WARN No route defined for [/][red]{verb} {path}[/]");
             httpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
             return Task.CompletedTask;
         });
@@ -166,10 +165,10 @@ public class RouteConfigurator
             if (handlers.Any(r => r.Preferred))
             {
                 handler = handlers.First(r => r.Preferred);
-                AnsiConsole.MarkupLine($"[yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
+                AnsiConsole.MarkupLine($"[cyan1]INFO[/] [yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
                 return true;
             }
-            AnsiConsole.MarkupLine($"Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
+            AnsiConsole.MarkupLine($"[cyan1]INFO[/] Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
         }
 
         handler = handlers.First();

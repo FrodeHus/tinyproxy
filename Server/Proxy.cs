@@ -9,10 +9,12 @@ public class Proxy
 {
     private WebApplication? _app;
     
-    public void Configure(List<ProxyRoute> routes)
+    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error)
     {
         
         var builder = WebApplication.CreateBuilder();
+        builder.Logging.SetMinimumLevel(logLevel);
+        builder.Logging.AddFilter((provider, category, level) => level == logLevel);
         builder.Services.AddHttpForwarder();
         builder.Services.AddHttpClient();
         builder.Services.AddSingleton<RouteConfigurator>();
