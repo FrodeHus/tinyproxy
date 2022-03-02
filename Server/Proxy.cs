@@ -1,10 +1,17 @@
 using Prometheus;
 using TinyProxy.Infrastructure;
+using TinyProxy.UI;
 
 namespace TinyProxy.Server;
 
 public class Proxy
 {
+    private readonly RequestVisualizer _visualizer;
+
+    public Proxy(RequestVisualizer visualizer)
+    {
+        _visualizer = visualizer;
+    }
     private WebApplication? _app;
     
     public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error)
@@ -34,7 +41,7 @@ public class Proxy
                 throw new ArgumentNullException(nameof(routeConfigurator));
             }
 
-            routeConfigurator.MapEndpoints(endpoints, routes);
+            routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
         });
     }

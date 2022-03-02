@@ -87,7 +87,7 @@ public class RouteConfigurator
         }
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes)
+    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes, Action<HttpContext, ProxyRoute>? requestHandler = null)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
@@ -119,8 +119,7 @@ public class RouteConfigurator
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
-                AnsiConsole.MarkupLine(
-                    $"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] [cyan1]{httpContext.Response.StatusCode}[/]");
+                requestHandler?.Invoke(httpContext, handler);
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
