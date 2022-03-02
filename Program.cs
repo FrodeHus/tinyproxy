@@ -1,7 +1,16 @@
+using Spectre.Console;
 using Spectre.Console.Cli;
 using TinyProxy.Commands;
+using TinyProxy.Infrastructure;
+using TinyProxy.Server;
+using TinyProxy.UI;
 
-var app = new CommandApp();
+var services = new ServiceCollection();
+services.AddSingleton<Proxy>();
+services.AddSingleton<RequestVisualizer>();
+
+var serviceProvider = new TypeRegistrar(services);
+var app = new CommandApp(serviceProvider);
 app.Configure(config =>
 {
     config.AddCommand<StartProxyCommand>("start");
@@ -18,4 +27,8 @@ app.Configure(config =>
         });
     });
 });
+AnsiConsole.Write(
+    new FigletText("TinyProxy")
+        .LeftAligned()
+        .Color(Color.Cyan3));
 app.Run(args);

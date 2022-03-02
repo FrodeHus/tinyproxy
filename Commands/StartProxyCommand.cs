@@ -7,6 +7,12 @@ namespace TinyProxy.Commands;
 
 public class StartProxyCommand : AsyncCommand<ProxySettings>
 {
+    private readonly Proxy _proxy;
+
+    public StartProxyCommand(Proxy proxy)
+    {
+        _proxy = proxy;
+    }
     public override async Task<int> ExecuteAsync(CommandContext context, ProxySettings settings)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
@@ -14,17 +20,16 @@ public class StartProxyCommand : AsyncCommand<ProxySettings>
         if (string.IsNullOrEmpty(settings.ConfigFile)) throw new ArgumentNullException(nameof(settings.ConfigFile));
         var openApiParser = new RouteService();
         await openApiParser.ParseConfigFile(settings.ConfigFile);
-        
+        AnsiConsole.MarkupLine($"Loading routes...");
         var proxyRoutes = openApiParser.GetAggregatedProxyRoutes();
         AnsiConsole.MarkupLine($"Proxying [yellow]{proxyRoutes.Count}[/] routes...");
-        var proxy = new Proxy();
         var logLevel = LogLevel.Error;
         if (settings.Verbose.HasValue && settings.Verbose.Value)
         {
             logLevel = LogLevel.Trace;
         }
-        proxy.Configure(proxyRoutes, logLevel);
-        proxy.Start();
+        _proxy.Configure(proxyRoutes, logLevel);
+        _proxy.Start();
         return 0;
     }
 }
