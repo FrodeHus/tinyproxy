@@ -73,7 +73,8 @@ public class OpenApiParser
     private Dictionary<HttpMethod, List<string>> GetNormalizedPathsForServer(UpstreamServer server)
     {
         var paths = new Dictionary<HttpMethod, List<string>>();
-        foreach (var (path, pathDefinition) in _apis.Values.SelectMany(p => p.Paths))
+        var apiDoc = _apis[server];
+        foreach (var (path, pathDefinition) in apiDoc.Paths)
         {
             foreach (var operation in pathDefinition.Operations)
             {
