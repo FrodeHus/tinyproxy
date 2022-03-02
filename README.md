@@ -35,7 +35,7 @@ Quickstart:
 
 ## Run the proxy
 
-Create a config file (see below) and run `dotnet TinyProxy start <configfile>`.
+Create a config file (see below) and run `dotnet TinyProxy start -f <configfile>`.
 
 If `<configfile>` is omitted, it will default to `{APPDATA}/tinyproxyconfig.json`.
 
