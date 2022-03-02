@@ -1,7 +1,5 @@
 using Prometheus;
-using TinyProxy.Commands;
 using TinyProxy.Infrastructure;
-using TinyProxy.OpenAPI;
 
 namespace TinyProxy.Server;
 

@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Spectre.Console;
 using TinyProxy.Infrastructure;
-using TinyProxy.OpenAPI;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace TinyProxy.Server;
@@ -88,15 +87,6 @@ public class RouteConfigurator
         }
     }
 
-    private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
-    {
-        return server.Routes.Select(r => new ProxyRoute
-        {
-            RelativePath = r, Prefix = server.Prefix, RemoteServer = server.Name,
-            RemoteServerBaseUrl = server.Url.ToString()
-        }).ToList();
-    }
-
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
@@ -108,17 +98,18 @@ public class RouteConfigurator
         });
 
         var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
-        var uniquePaths = routes.GroupBy(kvp => string.Join(kvp.Prefix, kvp.RelativePath), kvp => kvp,
+        var uniquePaths = routes.GroupBy(GetPrefixedPath, kvp => kvp,
             (path, handlers) => new {Path = path, Handlers = handlers});
         foreach (var item in uniquePaths)
         {
             routeBuilder.Map(item.Path, async httpContext =>
             {
                 var verb = httpContext.Request.Method;
-                if(!TryFindHandler(item.Handlers, item.Path, verb, out var handler))
+                if (!TryFindHandler(item.Handlers, item.Path, verb, out var handler))
                 {
                     return;
                 }
+
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
                     httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
@@ -127,7 +118,8 @@ public class RouteConfigurator
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
-                AnsiConsole.MarkupLine($"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] [cyan1]{httpContext.Response.StatusCode}[/]");
+                AnsiConsole.MarkupLine(
+                    $"[cyan1]{verb}[/] [deepskyblue1]{item.Path}[/] -> [cyan2]{handler.RemoteServerBaseUrl}{handler.RelativePath}[/] [cyan1]{httpContext.Response.StatusCode}[/]");
                 if (error != ForwarderError.None)
                 {
                     var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
@@ -135,7 +127,6 @@ public class RouteConfigurator
                     _logger.LogError(exception, "failed proxying {}", item.Path);
                 }
             });
-
         }
 
         routeBuilder.Map("/{**catch-all}", httpContext =>
@@ -148,11 +139,17 @@ public class RouteConfigurator
         });
     }
 
+    private static string GetPrefixedPath(ProxyRoute route)
+    {
+        return string.Join("/", route.Prefix.TrimEnd('/'), route.RelativePath.TrimStart('/'));
+    }
+
     private static bool TryFindHandler(IEnumerable<ProxyRoute> allHandlers, string path, string verb,
         out ProxyRoute handler)
     {
         var handlers = allHandlers.Where(
-            h => (h.Verb?.ToString() == verb || verb == HttpMethod.Options.ToString()) && path == string.Join(h.Prefix, h.RelativePath)).ToList();
+            h => (h.Verb?.ToString() == verb || verb == HttpMethod.Options.ToString()) &&
+                 path == GetPrefixedPath(h)).ToList();
         if (!handlers.Any())
         {
             AnsiConsole.MarkupLine($"[red]Handler for {path} was not found[/]");
@@ -165,10 +162,13 @@ public class RouteConfigurator
             if (handlers.Any(r => r.Preferred))
             {
                 handler = handlers.First(r => r.Preferred);
-                AnsiConsole.MarkupLine($"[cyan1]INFO[/] [yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
+                AnsiConsole.MarkupLine(
+                    $"[cyan1]INFO[/] [yellow]Too many handlers found for {verb} {path} - using preferred server {handler.RemoteServer}[/]");
                 return true;
             }
-            AnsiConsole.MarkupLine($"[cyan1]INFO[/] Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
+
+            AnsiConsole.MarkupLine(
+                $"[cyan1]INFO[/] Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
         }
 
         handler = handlers.First();

@@ -1,6 +1,6 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
-using TinyProxy.OpenAPI;
+using TinyProxy.Services;
 using TinyProxy.Server;
 
 namespace TinyProxy.Commands;
@@ -12,7 +12,7 @@ public class StartProxyCommand : AsyncCommand<ProxySettings>
         if (context == null) throw new ArgumentNullException(nameof(context));
         if (settings == null) throw new ArgumentNullException(nameof(settings));
         if (string.IsNullOrEmpty(settings.ConfigFile)) throw new ArgumentNullException(nameof(settings.ConfigFile));
-        var openApiParser = new OpenApiParser();
+        var openApiParser = new RouteService();
         await openApiParser.ParseConfigFile(settings.ConfigFile);
         
         var proxyRoutes = openApiParser.GetAggregatedProxyRoutes();

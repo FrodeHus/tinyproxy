@@ -2,12 +2,13 @@ using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using TinyProxy.Infrastructure;
 
-namespace TinyProxy.OpenAPI;
+namespace TinyProxy.Services;
 
-public class OpenApiParser
+public class RouteService
 {
-    private readonly Dictionary<UpstreamServer, OpenApiDocument> _apis = new ();
+    private readonly Dictionary<UpstreamServer, OpenApiDocument?> _apis = new();
     private readonly List<ProxyRoute> _allRoutes = new();
+
     public async Task ParseConfigFile(string configFile)
     {
         var config = ConfigUtils.ReadOrCreateConfig(configFile);
@@ -22,8 +23,15 @@ public class OpenApiParser
             await Parse(server);
         }
     }
+
     private async Task Parse(UpstreamServer server)
     {
+        if (string.IsNullOrEmpty(server.SwaggerEndpoint))
+        {
+            _apis.Add(server, default);
+            return;
+        }
+
         var client = new HttpClient
         {
             BaseAddress = server.Url
@@ -32,7 +40,22 @@ public class OpenApiParser
         var openApiDoc = new OpenApiStreamReader().Read(stream, out var diagnostic);
         _apis.Add(server, openApiDoc);
     }
-    
+
+    private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
+    {
+        return server.Routes.SelectMany(r =>
+        {
+            return r.HttpMethods.Select(method => new ProxyRoute
+            {
+                RelativePath = r.RelativePath, 
+                Prefix = server.Prefix, 
+                RemoteServer = server.Name,
+                RemoteServerBaseUrl = server.Url.ToString(), 
+                Verb = ConvertToHttpMethod(method)
+            });
+        }).ToList();
+    }
+
     public List<ProxyRoute> GetAggregatedProxyRoutes()
     {
         var endpoints = new List<ProxyRoute>();
@@ -53,27 +76,35 @@ public class OpenApiParser
                     });
             });
             endpoints.AddRange(routes);
+            endpoints.AddRange(GetStaticRoutes(server));
         }
-        
+
         return endpoints;
     }
 
-    public ProxyRoute FindRoute(string path, HttpMethod method, string prefix = "")
+    private HttpMethod ConvertToHttpMethod(string verb)
     {
-        var route = _allRoutes.Where(r => r.RelativePath == path && r.Verb == method && r.Prefix == prefix).ToList();
-        if (route.Count > 1)
+        return verb.ToUpper() switch
         {
-            throw new ArgumentException(
-                $"failed to find route for {method} {path} - too many matches: {route.Count}");
-        }
-
-        return route.FirstOrDefault() ?? new ProxyRoute();
+            "GET" => HttpMethod.Get,
+            "PUT" => HttpMethod.Put,
+            "POST" => HttpMethod.Post,
+            "DELETE" => HttpMethod.Delete,
+            "OPTIONS" => HttpMethod.Options,
+            "PATCH" => HttpMethod.Patch,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     private Dictionary<HttpMethod, List<string>> GetNormalizedPathsForServer(UpstreamServer server)
     {
         var paths = new Dictionary<HttpMethod, List<string>>();
         var apiDoc = _apis[server];
+        if (apiDoc == null)
+        {
+            return new Dictionary<HttpMethod, List<string>>();
+        }
+
         foreach (var (path, pathDefinition) in apiDoc.Paths)
         {
             foreach (var operation in pathDefinition.Operations)
@@ -95,13 +126,12 @@ public class OpenApiParser
                 {
                     paths.Add(verb, new List<string>());
                 }
-                
+
                 paths[verb].Add(normalizedPath);
             }
         }
 
         return paths;
-        
     }
 
     /// <summary>
