@@ -10,6 +10,7 @@ app.Configure(config =>
         c.AddBranch("add", add =>
         {
             add.AddCommand<AddServerCommand>("server");
+            add.AddCommand<AddRouteCommand>("route");
         });
         c.AddBranch("remove", remove =>
         {

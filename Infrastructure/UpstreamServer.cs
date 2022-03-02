@@ -23,5 +23,5 @@ public class UpstreamServer
     /// <summary>
     /// Static routes that are not defined in Swagger
     /// </summary>
-    public List<string> Routes { get; set; } = new List<string>();
+    public List<StaticRoute> Routes { get; set; } = new List<StaticRoute>();
 }
