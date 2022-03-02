@@ -112,7 +112,8 @@ public class RouteConfigurator
 
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
-                    httpContext.Request.Path = httpContext.Request.Path.Value?.Replace(handler.Prefix, "");
+                    var requestPath = httpContext.Request.Path.Value;
+                    httpContext.Request.Path = requestPath?[..(requestPath.IndexOf(handler.Prefix, StringComparison.Ordinal) + handler.Prefix.Length)];
                 }
 
                 ProxyMetrics.IncomingRequest(handler);
@@ -128,7 +129,12 @@ public class RouteConfigurator
                 }
             });
         }
-
+        var catchAllConfigured = routeBuilder.DataSources.Any(d => d.Endpoints.Any(e => e.DisplayName == "/{**catch-all}"));
+        if (catchAllConfigured)
+        {
+            return;
+        }
+        
         routeBuilder.Map("/{**catch-all}", httpContext =>
         {
             var verb = httpContext.Request.Method;
