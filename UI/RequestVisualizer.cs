@@ -16,8 +16,15 @@ public class RequestVisualizer
             >= 400 => Color.Orange1,
             _ => Color.Green3
         };
+        if (path.HasValue && path.Value.Length > 60)
+        {
+            path = path.Value[..57] + "...";
+        }
+
+        var handlerPath = handler.RemoteServerBaseUrl.TrimEnd('/') + handler.RelativePath;
+        
         AnsiConsole.MarkupLine(
-            $"[cyan1]{verb}[/] [deepskyblue1]{path}[/] -> [cyan2]{handler.RemoteServer}:{handler.RemoteServerBaseUrl.TrimEnd('/')}{handler.RelativePath}[/] [{color}]{context.Response.StatusCode}[/]");
+            $"[[{handler.RemoteServer,-20}]][cyan1]{verb,5}[/] [deepskyblue1]{path,-60}[/] -> [cyan2]{handlerPath,-60}[/] [{color}]{context.Response.StatusCode,5}[/]");
 
     }
 }
