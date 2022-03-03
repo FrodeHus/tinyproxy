@@ -16,6 +16,7 @@ app.Configure(config =>
     config.AddCommand<StartProxyCommand>("start");
     config.AddBranch("config", c =>
     {
+        c.AddCommand<ViewConfigCommand>("view");
         c.AddBranch("add", add =>
         {
             add.AddCommand<AddServerCommand>("server");
