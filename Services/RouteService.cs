@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
+using Spectre.Console;
 using TinyProxy.Infrastructure;
 
 namespace TinyProxy.Services;
@@ -7,13 +8,11 @@ namespace TinyProxy.Services;
 public class RouteService
 {
     private readonly Dictionary<UpstreamServer, OpenApiDocument?> _apis = new();
-    private readonly List<ProxyRoute> _allRoutes = new();
 
     public async Task ParseConfigFile(string configFile)
     {
         var config = ConfigUtils.ReadOrCreateConfig(configFile);
         await ParseConfig(config);
-        _allRoutes.AddRange(GetAggregatedProxyRoutes());
     }
 
     private async Task ParseConfig(ProxyConfig config)
@@ -74,9 +73,13 @@ public class RouteService
                         Preferred = server.Preferred,
                         RemoteServer = server.Name
                     });
-            });
+            }).ToList();
             endpoints.AddRange(routes);
-            endpoints.AddRange(GetStaticRoutes(server));
+            var staticRoutes = GetStaticRoutes(server).ToList();
+            endpoints.AddRange(staticRoutes);
+            AnsiConsole.MarkupLine($"{server.Name} loaded");
+            AnsiConsole.MarkupLine($"\tOpenAPI: [{Color.Orange1}]{routes.Count,5}[/]");
+            AnsiConsole.MarkupLine($"\tStatic : [{Color.Orange1}]{staticRoutes.Count,5}[/]");
         }
 
         return endpoints;
