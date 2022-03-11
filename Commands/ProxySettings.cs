@@ -6,5 +6,8 @@ public class ProxySettings : ConfigurationSettings
 {
     [CommandOption("-v|--verbose")]
     public bool? Verbose { get; set; }
-    
+
+    [CommandOption("-p|--port <PORT>")]
+    public int Port { get; set; } = 5000;
+
 }
