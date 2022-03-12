@@ -3,7 +3,9 @@
 [![.NET](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml)
 
 
-Simple HTTP forwarder that reads swagger definitions from configured upstream servers and proxies requests to them.
+This project was born out of a need for a better local developer experience (IMHO) and thus the limitations of this proxy is **local**.
+
+TinyProxy will only bind to localhost - it is meant as a local development proxy.
 
 ## Installation
 
