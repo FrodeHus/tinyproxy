@@ -36,7 +36,7 @@ public class Proxy
         {
             _app.UseDeveloperExceptionPage();
         }
-
+        _app.UseMiddleware<ResponseLogging>();
         _app.UseRouting();
         _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>
