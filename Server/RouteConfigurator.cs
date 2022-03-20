@@ -65,13 +65,13 @@ public class RouteConfigurator
         try
         {
             var endpoints = ParseSwagger(server);
-            return endpoints.Select(e => new ProxyRoute
+            return endpoints.ConvertAll(e => new ProxyRoute
             {
                 Prefix = server.Prefix,
                 RelativePath = e,
                 RemoteServerBaseUrl = server.Url.ToString(),
                 RemoteServer = server.Name
-            }).ToList();
+            });
         }
         catch (AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
         {
