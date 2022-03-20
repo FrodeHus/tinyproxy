@@ -24,11 +24,11 @@ public class StartProxyCommand : AsyncCommand<ProxySettings>
         var proxyRoutes = openApiParser.GetAggregatedProxyRoutes();
         AnsiConsole.MarkupLine($"Proxying [yellow]{proxyRoutes.Count}[/] routes...");
         var logLevel = LogLevel.Error;
-        if (settings.Verbose.HasValue && settings.Verbose.Value)
+        if (settings.Verbose == true)
         {
             logLevel = LogLevel.Trace;
         }
-        _proxy.Configure(proxyRoutes, logLevel, settings.Port);
+        _proxy.Configure(proxyRoutes, logLevel, settings.Port, settings.Verbose ?? false);
         _proxy.Start();
         return 0;
     }

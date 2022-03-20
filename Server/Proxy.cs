@@ -17,15 +17,12 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, int port = 5000)
+    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();
-        builder.WebHost.ConfigureKestrel((_, options) =>
-        {
-            options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2);
-        });
+        builder.WebHost.ConfigureKestrel((_, options) => options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2));
         builder.Logging.SetMinimumLevel(logLevel);
-        builder.Logging.AddFilter((provider, category, level) => level == logLevel);
+        builder.Logging.AddFilter((_, _, level) => level == logLevel);
         builder.Services.AddHttpForwarder();
         builder.Services.AddHttpClient();
         builder.Services.AddSingleton<RouteConfigurator>();
@@ -36,7 +33,12 @@ public class Proxy
         {
             _app.UseDeveloperExceptionPage();
         }
-        _app.UseMiddleware<ResponseLogging>();
+        if (verbose)
+        {
+            _app.UseMiddleware<RequestLogging>();
+            _app.UseMiddleware<ResponseLogging>();
+        }
+
         _app.UseRouting();
         _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>
