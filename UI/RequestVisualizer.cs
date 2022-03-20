@@ -24,8 +24,13 @@ public class RequestVisualizer
         }
 
         var handlerPath = handler.RemoteServerBaseUrl.TrimEnd('/') + handler.RelativePath;
-
+        var labelUpstreamResponse = "Upstream response";
+        var labelUpstream = "Upstream";
+        var labelUpstreamPath = "Upstream path";
         AnsiConsole.MarkupLine(
-            $"[[{handler.RemoteServer,-20}]][{color}]{context.Response.StatusCode,5}[/][cyan1]{verb,5}[/] [deepskyblue1]{path,-60}[/] -> [cyan2]{handlerPath,-60}[/] ");
+            $"[{Color.Cornsilk1}]{labelUpstream,-30}: [/][{Color.CornflowerBlue}]{handler.RemoteServer,-30} [/]");
+        AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]{labelUpstreamResponse,-30}: [/][{color}]{context.Response.StatusCode,-10}[/]");
+        AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]{labelUpstreamPath,-30}:[/] [{Color.CornflowerBlue}]{handlerPath,-60}[/]");
+
     }
 }

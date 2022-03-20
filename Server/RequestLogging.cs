@@ -19,7 +19,7 @@ public class RequestLogging
 
     private async Task LogRequest(HttpRequest httpRequest)
     {
-        var requestHeader = new Rule("Request").Alignment(Justify.Left);
+        var requestHeader = new Rule(httpRequest.Path).Alignment(Justify.Left);
         AnsiConsole.Write(requestHeader);
         foreach (var header in httpRequest.Headers)
         {
