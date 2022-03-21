@@ -31,7 +31,8 @@ public class RequestLogging
         {
             using var reader = new StreamReader(httpRequest.Body, Encoding.UTF8, true, 1024, true);
             var content = await reader.ReadToEndAsync();
-            AnsiConsole.Markup($"[{Color.Cornsilk1}]Content: [/][{Color.CornflowerBlue}]{content}[/]");
+            AnsiConsole.Markup($"[{Color.Cornsilk1}]Content: [/]");
+            Console.WriteLine(content);
             httpRequest.Body.Position = 0;
         }
     }

@@ -93,7 +93,7 @@ public class RouteConfigurator
         {
             UseProxy = false,
             AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.None,
+            AutomaticDecompression = DecompressionMethods.All,
             UseCookies = false
         });
 

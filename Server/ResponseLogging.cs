@@ -32,7 +32,7 @@ public class ResponseLogging
 
     private async Task LogResponse(HttpResponse httpResponse, Stream originalBody, MemoryStream memoryStream)
     {
-        httpResponse.Body.Seek(0, SeekOrigin.Begin); 
+        httpResponse.Body.Seek(0, SeekOrigin.Begin);
         var responseHeader = new Rule("Response").Alignment(Justify.Left);
         AnsiConsole.Write(responseHeader);
         foreach (var header in httpResponse.Headers)
@@ -45,7 +45,10 @@ public class ResponseLogging
         string bodyText = await streamReader.ReadToEndAsync();
 
         if (bodyText.Length > 0)
-            AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]Content: [/][{Color.CornflowerBlue}]{bodyText}[/]");
+        {
+            AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]Content: [/]");
+            Console.WriteLine(bodyText);
+        }
 
         httpResponse.Body.Seek(0, SeekOrigin.Begin);
         await memoryStream.CopyToAsync(originalBody);
