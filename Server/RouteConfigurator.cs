@@ -93,13 +93,13 @@ public class RouteConfigurator
         {
             UseProxy = false,
             AllowAutoRedirect = false,
-            AutomaticDecompression = DecompressionMethods.None,
+            AutomaticDecompression = DecompressionMethods.All,
             UseCookies = false
         });
 
-        var requestOptions = new ForwarderRequestConfig {ActivityTimeout = TimeSpan.FromSeconds(100)};
+        var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
         var uniquePaths = routes.GroupBy(GetPrefixedPath, kvp => kvp,
-            (path, handlers) => new {Path = path, Handlers = handlers});
+            (path, handlers) => new { Path = path, Handlers = handlers });
         foreach (var item in uniquePaths)
         {
             routeBuilder.Map(item.Path, async httpContext =>
@@ -113,7 +113,8 @@ public class RouteConfigurator
                 if (!string.IsNullOrEmpty(handler.Prefix))
                 {
                     var requestPath = httpContext.Request.Path.Value;
-                    httpContext.Request.Path = requestPath?[..(requestPath.IndexOf(handler.Prefix, StringComparison.Ordinal) + handler.Prefix.Length)];
+                    httpContext.Request.Path = requestPath?[(requestPath.IndexOf(handler.Prefix, StringComparison.Ordinal) + handler.Prefix.Length)..];
+                    ;
                 }
 
                 ProxyMetrics.IncomingRequest(handler);
@@ -133,13 +134,13 @@ public class RouteConfigurator
         {
             return;
         }
-        
+
         routeBuilder.Map("/{**catch-all}", httpContext =>
         {
             var verb = httpContext.Request.Method;
             var path = httpContext.Request.Path;
             AnsiConsole.MarkupLine($"[yellow]WARN No route defined for [/][red]{verb} {path}[/]");
-            httpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+            httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
             return Task.CompletedTask;
         });
     }
