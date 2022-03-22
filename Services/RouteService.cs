@@ -35,9 +35,16 @@ public class RouteService
         {
             BaseAddress = server.Url
         };
-        var stream = await client.GetStreamAsync(server.SwaggerEndpoint);
-        var openApiDoc = new OpenApiStreamReader().Read(stream, out var diagnostic);
-        _apis.Add(server, openApiDoc);
+        try
+        {
+            var stream = await client.GetStreamAsync(server.SwaggerEndpoint);
+            var openApiDoc = new OpenApiStreamReader().Read(stream, out var diagnostic);
+            _apis.Add(server, openApiDoc);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine("[red]Failed to reach upstream server when trying to load OpenAPI specification: [/]" + ex.Message);
+        }
     }
 
     private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
