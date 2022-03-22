@@ -1,6 +1,4 @@
 using System.Net;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Spectre.Console;
 using TinyProxy.Infrastructure;
 using Yarp.ReverseProxy.Forwarder;
@@ -10,81 +8,12 @@ namespace TinyProxy.Server;
 public class RouteConfigurator
 {
     private readonly IHttpForwarder _forwarder;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<RouteConfigurator> _logger;
 
-    public RouteConfigurator(IHttpForwarder forwarder,
-        IHttpClientFactory httpClientFactory, ILogger<RouteConfigurator> logger)
+    public RouteConfigurator(IHttpForwarder forwarder, ILogger<RouteConfigurator> logger)
     {
         _forwarder = forwarder;
-        _httpClientFactory = httpClientFactory;
         _logger = logger;
-    }
-
-    private ProxyConfig? LoadConfig(string configFile)
-    {
-        var configJson = File.ReadAllText(configFile);
-        return JsonSerializer.Deserialize<ProxyConfig>(configJson);
-    }
-
-    private List<string> ParseSwagger(UpstreamServer server)
-    {
-        var parameterMatcher = new Regex(@"{(?<paramName>[\w_]+)}");
-        var client = _httpClientFactory.CreateClient();
-        var uriBuilder = new UriBuilder(server.Url);
-        uriBuilder.Path += server.SwaggerEndpoint;
-        var swaggerJson = client.GetStringAsync(uriBuilder.Uri.ToString()).Result;
-        var swagger = JsonDocument.Parse(swaggerJson);
-        var paths = swagger.RootElement.GetProperty("paths");
-        var endpoints = new List<string>();
-        foreach (var path in paths.EnumerateObject())
-        {
-            var endpoint = path.Name;
-            var parameters = parameterMatcher.Matches(endpoint);
-            var paramIndex = 0;
-            foreach (Match param in parameters)
-            {
-                endpoint = endpoint.Replace(param.Value, $"{{param{paramIndex}}}");
-                paramIndex++;
-            }
-
-            if (endpoints.Contains(endpoint)) continue;
-            endpoints.Add(endpoint);
-        }
-
-        return endpoints;
-    }
-
-    private IEnumerable<ProxyRoute> GetSwaggerRoutes(UpstreamServer server)
-    {
-        if (string.IsNullOrEmpty(server.SwaggerEndpoint))
-        {
-            return new List<ProxyRoute>();
-        }
-
-        try
-        {
-            var endpoints = ParseSwagger(server);
-            return endpoints.ConvertAll(e => new ProxyRoute
-            {
-                Prefix = server.Prefix,
-                RelativePath = e,
-                RemoteServerBaseUrl = server.Url.ToString(),
-                RemoteServer = server.Name
-            });
-        }
-        catch (AggregateException ae) when (ae.InnerExceptions.Any(ie => ie.GetType() == typeof(HttpRequestException)))
-        {
-            _logger.LogError("failed to retrieve swagger definition from {}{}", server.Url.ToString(),
-                server.SwaggerEndpoint);
-            return new List<ProxyRoute>();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "unexpected error when trying to read swagger definition from {}{}",
-                server.Url.ToString(), server.SwaggerEndpoint);
-            return new List<ProxyRoute>();
-        }
     }
 
     public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes, Action<HttpContext, ProxyRoute>? requestHandler = null)
