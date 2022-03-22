@@ -21,7 +21,7 @@ public class ResponseLogging
                 httpResponse.Body = memoryStream;
 
                 await requestDelegate(httpContext);
-                await LogResponse(httpContext.Response, originalBody, memoryStream);
+                await LogResponse(httpContext.Response, httpContext.Request.Path, originalBody, memoryStream);
             }
         }
         finally
@@ -30,10 +30,10 @@ public class ResponseLogging
         }
     }
 
-    private async Task LogResponse(HttpResponse httpResponse, Stream originalBody, MemoryStream memoryStream)
+    private async Task LogResponse(HttpResponse httpResponse, string requestPath, Stream originalBody, MemoryStream memoryStream)
     {
         httpResponse.Body.Seek(0, SeekOrigin.Begin);
-        var responseHeader = new Rule("Response").Alignment(Justify.Left);
+        var responseHeader = new Rule($"[#00ffff]:left_arrow:[/] [#87d7ff]{requestPath}[/]").Alignment(Justify.Left);
         AnsiConsole.Write(responseHeader);
         foreach (var header in httpResponse.Headers)
         {
