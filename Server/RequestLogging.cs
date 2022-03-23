@@ -1,5 +1,6 @@
 using System.Text;
 using Spectre.Console;
+using TinyProxy.UI;
 
 public class RequestLogging
 {
@@ -19,7 +20,7 @@ public class RequestLogging
 
     private async Task LogRequest(HttpRequest httpRequest)
     {
-        var requestHeader = new Rule($"[#00ffff]:right_arrow:[/] [#87d7ff]{httpRequest.Path}[/]").Alignment(Justify.Left);
+        var requestHeader = new Rule($"[#00ffff]==>[/] [#87d7ff]{httpRequest.Path}[/]").Alignment(Justify.Left);
         AnsiConsole.Write(requestHeader);
         foreach (var header in httpRequest.Headers)
         {
@@ -29,9 +30,8 @@ public class RequestLogging
 
         if (httpRequest.ContentLength > 0)
         {
-            using var reader = new StreamReader(httpRequest.Body, Encoding.UTF8, true, 1024, true);
-            var content = await reader.ReadToEndAsync();
             AnsiConsole.Markup($"[{Color.Cornsilk1}]Content: [/]");
+            var content = await PayloadVisualizer.Visualize(httpRequest.ContentType ?? "*/*", httpRequest.Body);
             Console.WriteLine(content);
             httpRequest.Body.Position = 0;
         }
