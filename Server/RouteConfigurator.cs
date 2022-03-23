@@ -45,7 +45,7 @@ public class RouteConfigurator
                     httpContext.Request.Path = requestPath?[(requestPath.IndexOf(handler.Prefix, StringComparison.Ordinal) + handler.Prefix.Length)..];
                     ;
                 }
-
+                httpContext.Items.Add("handler", handler);
                 ProxyMetrics.IncomingRequest(handler);
                 var error = await _forwarder.SendAsync(httpContext, handler.RemoteServerBaseUrl, httpClient,
                     requestOptions);
