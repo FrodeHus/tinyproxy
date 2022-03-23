@@ -1,5 +1,8 @@
+using System.Text;
 using Spectre.Console;
+using TinyProxy.Infrastructure;
 using TinyProxy.UI;
+using System;
 
 public class ResponseLogging
 {
@@ -17,13 +20,11 @@ public class ResponseLogging
 
         try
         {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                httpResponse.Body = memoryStream;
+            using MemoryStream memoryStream = new MemoryStream();
+            httpResponse.Body = memoryStream;
 
-                await requestDelegate(httpContext);
-                await LogResponse(httpContext.Response, httpContext.Request.Path, originalBody, memoryStream);
-            }
+            await requestDelegate(httpContext);
+            await LogResponse(httpContext.Response, httpContext.Request.Path, originalBody, memoryStream, httpContext.Items["handler"] as ProxyRoute);
         }
         finally
         {
@@ -31,7 +32,7 @@ public class ResponseLogging
         }
     }
 
-    private async Task LogResponse(HttpResponse httpResponse, string requestPath, Stream originalBody, MemoryStream memoryStream)
+    private static async Task LogResponse(HttpResponse httpResponse, string requestPath, Stream originalBody, MemoryStream memoryStream, ProxyRoute? handler = null)
     {
         httpResponse.Body.Seek(0, SeekOrigin.Begin);
         var responseHeader = new Rule($"[#00ffff]<==[/] [#87d7ff]{requestPath}[/]").Alignment(Justify.Left);
@@ -48,8 +49,15 @@ public class ResponseLogging
             AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]Content: [/]");
             Console.WriteLine(content);
         }
-
+        if (handler != null && !string.IsNullOrEmpty(handler.Prefix))
+        {
+            content = content.Replace("href=\"/", $"href=\"{handler.Prefix}/");
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var contentBytes = Encoding.UTF8.GetBytes(content);
+            await memoryStream.WriteAsync(contentBytes);
+        }
         httpResponse.Body.Seek(0, SeekOrigin.Begin);
+
         await memoryStream.CopyToAsync(originalBody);
     }
 }
