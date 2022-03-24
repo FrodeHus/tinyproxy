@@ -2,6 +2,7 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr"
 import { useEffect, useState } from 'react/cjs/react.production.min';
+import { TrafficEntry } from '../components'
 
 
 
@@ -34,7 +35,7 @@ export default function Home() {
       } else {
         path = path.value.toString()
       }
-      
+
       let item = {
         path: path,
         statusCode: statusCode,
@@ -42,9 +43,8 @@ export default function Home() {
         request: request
       }
 
-      console.log(item)
       addTrafficData(item)
-    
+
     });
 
     // Start the connection.
@@ -69,14 +69,9 @@ export default function Home() {
             <div className="wrapper">
               <section className="block">
                 <div id="routed-traffic" className="traffic-section">
-                    {trafficData.map(function (d, idx) {
-                      return (<div key={idx} className={"traffic-block " + d.routeHandler.verb.method.toLowerCase()}>
-                        <div className="traffic-summary">
-                          <span className="upstream-server">{d.routeHandler.remoteServer}</span>
-                          <span className="request-path-summary">{d.path}</span>
-                        </div>
-                      </div>)
-                    })}
+                  {trafficData.map(function (d, idx) {
+                    return <TrafficEntry key={idx} handler={d.routeHandler} path={d.path} statusCode={d.statusCode} />
+                  })}
                 </div>
               </section>
             </div>
