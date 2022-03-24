@@ -3,6 +3,7 @@ using Spectre.Console;
 using TinyProxy.Infrastructure;
 using TinyProxy.UI;
 using System;
+using TinyProxy.UI.CommandLine;
 
 public class ResponseLogging
 {

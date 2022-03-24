@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace TinyProxy.UI;
+namespace TinyProxy.UI.CommandLine;
 
 public static class PayloadVisualizer
 {

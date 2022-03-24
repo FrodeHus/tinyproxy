@@ -1,8 +1,9 @@
-using System.Net;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Prometheus;
+using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
-using TinyProxy.UI;
+using TinyProxy.UI.CommandLine;
+using TinyProxy.UI.Web;
 
 namespace TinyProxy.Server;
 
@@ -17,7 +18,7 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, int port = 5000, bool verbose = false)
+    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false, int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.ConfigureKestrel((_, options) => options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2));
@@ -26,6 +27,7 @@ public class Proxy
         builder.Services.AddHttpForwarder();
         builder.Services.AddHttpClient();
         builder.Services.AddSingleton<RouteConfigurator>();
+        builder.Services.AddSignalR();
 
         _app = builder.Build();
 
@@ -33,12 +35,20 @@ public class Proxy
         {
             _app.UseDeveloperExceptionPage();
         }
+
+        if (useWebUI)
+        {
+            _app.UseWebUI();
+        }
+
+        _app.UseMiddleware<HubMessages>();
+
         if (verbose)
         {
             _app.UseMiddleware<RequestLogging>();
             _app.UseMiddleware<ResponseLogging>();
         }
-
+        
         _app.UseRouting();
         _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>
@@ -51,6 +61,7 @@ public class Proxy
 
             routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
+            endpoints.MapHub<ProxyHub>("/proxyHub");
         });
     }
 

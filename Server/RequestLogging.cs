@@ -1,6 +1,7 @@
 using System.Text;
 using Spectre.Console;
 using TinyProxy.UI;
+using TinyProxy.UI.CommandLine;
 
 public class RequestLogging
 {
