@@ -11,7 +11,7 @@ public class WebUIMiddleware
 {
     private readonly WebUIOptions _options;
     private readonly StaticFileMiddleware _staticFileMiddleware;
-    private const string EmbeddedFileNamespace = "UI/Web/www";
+    private const string EmbeddedFileNamespace = "tinyproxy_dashboard/out";
 
     public WebUIMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnv,
         ILoggerFactory loggerFactory,
