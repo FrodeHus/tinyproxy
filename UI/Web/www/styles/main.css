@@ -1,3 +1,77 @@
-.title {
-    font-size: 18pt;
+:root{
+    --primary-color: #000000;
+    --primary-background: #ffffff;
+    --color1: #9bb3e8;
+    --color2: #bcccef;
+    --accent-color: #58867D;
+}
+body{
+    background-color: var(--primary-background);
+}
+.tinyproxy-ui{
+    font-family: sans-serif;
+    color: var(--primary-color);
+}
+
+.tinyproxy-ui .topbar{
+    padding: 10px 0;
+    background-color: var(--color1);
+}
+
+.wrapper{
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.block {
+    display: block;
+}
+
+.title{
+    display: flex;
+    margin: 0;
+    padding-left: 10px;
+    font-size: 1.2em;
+}
+
+.traffic-section{
+    display: flex;
+    flex-direction: column;
+}
+
+.traffic-block{
+    margin: 0 0 15px;
+    border: 1px solid var(--color2);
+    border-radius: 4px;
+    box-shadow: 0 0 3px rgb(0 0 0 / 19%);
+}
+
+.traffic-block.get{
+    border-color: #61affe;
+    background-color: rgba(97,175,254,.1);
+}
+
+.traffic-block.post{
+    border-color: #49cc90;
+    background: rgba(73,204,144,.1);
+}
+
+
+.traffic-block.put{
+    border-color: #fca130;
+    background: rgba(252,161,48,.1);
+}
+
+
+.traffic-block.delete{
+    border-color: #49cc90;
+    background: rgba(73,204,144,.1);
+}
+
+
+.traffic-block.post{
+    border-color: #49cc90;
+    background: rgba(73,204,144,.1);
 }
