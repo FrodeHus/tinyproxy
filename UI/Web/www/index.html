@@ -15,63 +15,14 @@
         </div>
         <div class="wrapper">
             <section class="block">
-                <div class="traffic-section">
-                    <div class="traffic-block get">
-                        <div class="traffic-summary">
-                            <span class="upstream-server">
-                                MyHost
-                            </span>
-                            <span class="request-path-summary">
-                                /something
-                            </span>
-                            <span class="request-status ok">
-                                200    
-                            </span>
-                        </div>
-                    </div>
-                    <div class="traffic-block put">
-                        <div class="traffic-summary">
-                            <span class="upstream-server">
-                                MyHost
-                            </span>
-                            <span class="request-path-summary">
-                                /something
-                            </span>
-                            <span class="request-status error">
-                                404    
-                            </span>
-                        </div>
-                    </div>
-                    <div class="traffic-block post">
-                        <div class="traffic-summary">
-                            <span class="upstream-server">
-                                MyHost
-                            </span>
-                            <span class="request-path-summary">
-                                /something
-                            </span>
-                            <span class="request-status ok">
-                                200    
-                            </span>
-                        </div>
-                    </div>
-                    <div class="traffic-block delete">
-                        <div class="traffic-summary">
-                            <span class="upstream-server">
-                                MyHost
-                            </span>
-                            <span class="request-path-summary">
-                                /something
-                            </span>
-                            <span class="request-status ok">
-                                200    
-                            </span>
-                        </div>
-                    </div>
+                <div id="routed-traffic" class="traffic-section">
+                   
                 </div>
             </section>
         </div>
     </section>
 </div>
+<script src="./js/signalr/dist/browser/signalr.js"></script>
+<script src="./js/webui.js"></script>
 </body>
 </html>

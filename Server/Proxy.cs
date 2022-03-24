@@ -40,7 +40,8 @@ public class Proxy
         {
             _app.UseWebUI();
         }
-        
+
+        _app.UseMiddleware<HubMessages>();
 
         if (verbose)
         {

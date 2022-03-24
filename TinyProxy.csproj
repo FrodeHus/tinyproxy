@@ -38,5 +38,9 @@
   <ItemGroup>
     <EmbeddedResource Include="UI\Web\www\**\*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="UI\Web\www\js\webui.js" />
+  </ItemGroup>
   
 </Project>
