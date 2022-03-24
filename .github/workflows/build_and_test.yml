@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: 12.x
-    - run: cd tinyproxy_dashboard && npm run build
+    - run: cd tinyproxy_dashboard && npm install && npm run build
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
