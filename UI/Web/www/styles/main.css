@@ -12,6 +12,7 @@
 
 body {
     background-color: var(--primary-background);
+    height: 100%;
 }
 
 .tinyproxy-ui {
@@ -43,6 +44,8 @@ body {
 }
 
 .traffic-section {
+    height: 90vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
