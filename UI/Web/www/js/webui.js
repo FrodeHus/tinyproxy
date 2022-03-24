@@ -38,9 +38,13 @@ connection.on("GetTrafficSummary", function (path, statusCode, handler) {
 
     trafficEntry.appendChild(summary);
     document.getElementById("routed-traffic").appendChild(trafficEntry);
-
-    li.textContent = `${user} says ${message}`;
+    updateScroll();
 });
+
+function updateScroll(){
+    var element = document.getElementById("routed-traffic");
+    element.scrollTop = element.scrollHeight;
+}
 
 connection.start();
 
