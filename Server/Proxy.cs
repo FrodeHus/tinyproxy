@@ -43,10 +43,7 @@ public class Proxy
 
         _app.UseRouting();
         _app.UseMetricServer();
-        if (useWebUI)
-        {
-            _app.UseWebUI();
-        }
+        
         _app.UseEndpoints(endpoints =>
         {
             var routeConfigurator = endpoints.ServiceProvider.GetService<RouteConfigurator>();
@@ -57,6 +54,8 @@ public class Proxy
 
             routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
+            if(useWebUI)
+                endpoints.MapWebUI();
         });
     }
 

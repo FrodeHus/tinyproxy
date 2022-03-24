@@ -21,16 +21,22 @@
     <Copyright>Copyright 2022 - Frode Hus</Copyright>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.3" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.2.3" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="Spectre.Console" Version="0.43.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
     <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="UI\Web\www\**\*" />
   </ItemGroup>
 
 </Project>

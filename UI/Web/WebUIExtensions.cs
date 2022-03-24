@@ -20,4 +20,10 @@ public static class WebUIExtensions
     {
         return app.UseMiddleware<WebUIMiddleware>(options);
     }
+
+    public static IEndpointConventionBuilder MapWebUI(this IEndpointRouteBuilder routeBuilder, string pattern = "/ui/{**catch-all}")
+    {
+        var pipeline = routeBuilder.CreateApplicationBuilder().UseWebUI().Build();
+        return routeBuilder.MapGet(pattern,pipeline);
+    }
 }
