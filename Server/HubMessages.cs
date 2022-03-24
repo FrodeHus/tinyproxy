@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 
 namespace TinyProxy.Server;
 
@@ -20,7 +21,9 @@ public class HubMessages
         await _requestDelegate(httpContext);
         if (httpContext.Items["handler"] is ProxyRoute handler)
         {
-            await _hub.Clients.All.SendAsync("GetTrafficSummary", httpContext.Request.Path, httpContext.Response.StatusCode, handler);
+            var request =
+                new Request(httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()));
+            await _hub.Clients.All.SendAsync("GetTrafficSummary", httpContext.Request.Path, httpContext.Response.StatusCode, handler, request);
         }
     }
 
