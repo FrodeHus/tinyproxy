@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Prometheus;
 using TinyProxy.Infrastructure;
 using TinyProxy.UI;
+using TinyProxy.UI.CommandLine;
+using TinyProxy.UI.Web;
 
 namespace TinyProxy.Server;
 
@@ -17,7 +19,7 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, int port = 5000, bool verbose = false)
+    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false, int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.ConfigureKestrel((_, options) => options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2));
@@ -41,6 +43,10 @@ public class Proxy
 
         _app.UseRouting();
         _app.UseMetricServer();
+        if (useWebUI)
+        {
+            _app.UseWebUI();
+        }
         _app.UseEndpoints(endpoints =>
         {
             var routeConfigurator = endpoints.ServiceProvider.GetService<RouteConfigurator>();

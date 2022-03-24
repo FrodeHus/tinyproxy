@@ -10,4 +10,7 @@ public class ProxySettings : ConfigurationSettings
     [CommandOption("-p|--port <PORT>")]
     public int Port { get; set; } = 5000;
 
+    [CommandOption("-u|--ui")]
+    public bool? UseWebUI { get; set; }
+
 }

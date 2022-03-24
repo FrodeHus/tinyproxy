@@ -1,8 +1,7 @@
-using System.Text.Json;
 using Spectre.Console;
 using TinyProxy.Infrastructure;
 
-namespace TinyProxy.UI;
+namespace TinyProxy.UI.CommandLine;
 
 public class RequestVisualizer
 {

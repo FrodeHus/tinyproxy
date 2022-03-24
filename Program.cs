@@ -4,6 +4,7 @@ using TinyProxy.Commands;
 using TinyProxy.Infrastructure;
 using TinyProxy.Server;
 using TinyProxy.UI;
+using TinyProxy.UI.CommandLine;
 
 var services = new ServiceCollection();
 services.AddSingleton<Proxy>();

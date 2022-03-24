@@ -28,7 +28,7 @@ public class StartProxyCommand : AsyncCommand<ProxySettings>
         {
             logLevel = LogLevel.Trace;
         }
-        _proxy.Configure(proxyRoutes, logLevel, settings.Port, settings.Verbose ?? false);
+        _proxy.Configure(proxyRoutes, logLevel, settings.UseWebUI ?? false, settings.Port, settings.Verbose ?? false);
         _proxy.Start();
         return 0;
     }
