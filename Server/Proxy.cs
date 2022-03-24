@@ -1,8 +1,7 @@
-using System.Net;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Prometheus;
+using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
-using TinyProxy.UI;
 using TinyProxy.UI.CommandLine;
 using TinyProxy.UI.Web;
 
@@ -28,6 +27,7 @@ public class Proxy
         builder.Services.AddHttpForwarder();
         builder.Services.AddHttpClient();
         builder.Services.AddSingleton<RouteConfigurator>();
+        builder.Services.AddSignalR();
 
         _app = builder.Build();
 
@@ -36,8 +36,11 @@ public class Proxy
             _app.UseDeveloperExceptionPage();
         }
 
-        if(useWebUI)
+        if (useWebUI)
+        {
             _app.UseWebUI();
+        }
+        
 
         if (verbose)
         {
@@ -57,6 +60,7 @@ public class Proxy
 
             routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
+            endpoints.MapHub<ProxyHub>("/proxyHub");
         });
     }
 
