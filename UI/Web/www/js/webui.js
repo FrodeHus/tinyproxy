@@ -53,6 +53,7 @@ function appendTrafficDetail(parent, path, request){
     title.textContent ="HTTP Headers";
     headerPanel.appendChild(title);
     let headerList = document.createElement("ul");
+    headerList.className = "header-list";
     for (const [key, value] of Object.entries(request.headers)) {
         let item = document.createElement("li");
         let headerName = document.createElement("strong");
@@ -63,7 +64,7 @@ function appendTrafficDetail(parent, path, request){
         item.appendChild(headerValue);
         headerList.appendChild(item);
     }
-    details.appendChild(headerList);
+    headerPanel.appendChild(headerList);
     parent.appendChild(details);
 }
 function updateScroll(){

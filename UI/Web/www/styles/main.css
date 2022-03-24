@@ -142,6 +142,7 @@ body {
 }
 
 .panel{
+    background-color: #ffffff;
     border: 1px solid var(--color1);
     margin: 0 0 25px 0;
     border-radius: 4px;
@@ -157,4 +158,9 @@ body {
     font-size: 14px;
     background: #f4f4f9;
     border-bottom: 1px solid #e6e6ec;
+}
+
+.header-list{
+    list-style-type: none;
+    color: var(--primary-color);
 }
