@@ -38,5 +38,5 @@
   <ItemGroup>
     <EmbeddedResource Include="UI\Web\www\**\*" />
   </ItemGroup>
-
+  
 </Project>

@@ -35,15 +35,18 @@ public class Proxy
         {
             _app.UseDeveloperExceptionPage();
         }
+
+        if(useWebUI)
+            _app.UseWebUI();
+
         if (verbose)
         {
             _app.UseMiddleware<RequestLogging>();
             _app.UseMiddleware<ResponseLogging>();
         }
-
+        
         _app.UseRouting();
         _app.UseMetricServer();
-        
         _app.UseEndpoints(endpoints =>
         {
             var routeConfigurator = endpoints.ServiceProvider.GetService<RouteConfigurator>();
@@ -54,8 +57,6 @@ public class Proxy
 
             routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
-            if(useWebUI)
-                endpoints.MapWebUI();
         });
     }
 

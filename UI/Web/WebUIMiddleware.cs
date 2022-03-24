@@ -26,11 +26,9 @@ public class WebUIMiddleware
         var httpMethod = httpContext.Request.Method;
         var path = httpContext.Request.Path.Value;
 
-        // If the RoutePrefix is requested (with or without trailing slash), redirect to index URL
         if (httpMethod == "GET" &&
             Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
         {
-            // Use relative redirect to support proxy environments
             var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
                 ? "index.html"
                 : $"{path.Split('/').Last()}/index.html";
@@ -39,28 +37,7 @@ public class WebUIMiddleware
             return;
         }
 
-        if (httpMethod == "GET" && Regex.IsMatch(path, $"^/{Regex.Escape(_options.RelativePath)}/?index.html$",
-                RegexOptions.IgnoreCase))
-        {
-            await RespondWithIndexHtml(httpContext.Response);
-            return;
-        }
-
         await _staticFileMiddleware.Invoke(httpContext);
-    }
-
-    private async Task RespondWithIndexHtml(HttpResponse response)
-    {
-        response.StatusCode = 200;
-        response.ContentType = "text/html;charset=utf-8";
-
-        using (var stream = _options.IndexStream())
-        {
-            // Inject arguments before writing to response
-            var htmlBuilder = new StringBuilder(new StreamReader(stream).ReadToEnd());
-
-            await response.WriteAsync(htmlBuilder.ToString(), Encoding.UTF8);
-        }
     }
 
     private void RespondWithRedirect(HttpResponse response, string location)
