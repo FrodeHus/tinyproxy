@@ -2,7 +2,8 @@ import Head from 'next/head';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
 import { RequestItem } from '../components';
-import { RouteHandler, ProxyData, RequestData } from '../components/types';
+import { ProxyData } from '../components/types';
+import { AppBar, Box, Toolbar, Typography } from '@mui/material';
 
 export default function Home() {
   const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
@@ -68,28 +69,33 @@ export default function Home() {
       </Head>
 
       <main>
-        <div id="tinyproxy-ui">
-          <section className="tinyproxy-ui">
-            <div className="topbar">
-              <h4 className="title">TinyProxy Dashboard</h4>
-            </div>
-            <div className="wrapper">
-              <section className="block">
-                <div id="routed-traffic" className="traffic-section">
-                  {trafficData.map(function (d, idx) {
-                    return (
-                      <RequestItem
-                        key={idx}
-                        handler={d.handler}
-                        path={d.path}
-                        statusCode={d.statusCode}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            </div>
-          </section>
+        <div>
+          <Box sx={{ flexGrow: 1 }}>
+            <AppBar position="static">
+              <Toolbar>
+                <Typography variant="h6" color="inherit" component="div">
+                  TinyProxy Dashboard
+                </Typography>
+              </Toolbar>
+            </AppBar>
+          </Box>
+          <Box sx={{ padding: 2 }}>
+            <section className="block">
+              <div id="routed-traffic" className="traffic-section">
+                {trafficData.map(function (d, idx) {
+                  return (
+                    <RequestItem
+                      key={idx}
+                      handler={d.handler}
+                      path={d.path}
+                      statusCode={d.statusCode}
+                      request={d.request}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          </Box>
         </div>
       </main>
     </div>
