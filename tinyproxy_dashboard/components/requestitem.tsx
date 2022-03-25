@@ -1,9 +1,10 @@
 import React, { FunctionComponent } from 'react';
+import { RouteHandler, ProxyData, RequestData } from '../components/types';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 type RequestItemProps = {
-  handler: any;
+  handler: RouteHandler;
   path: string;
   statusCode: number;
 };

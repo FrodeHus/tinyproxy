@@ -2,24 +2,8 @@ import Head from 'next/head';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
 import { RequestItem } from '../components';
+import { RouteHandler, ProxyData, RequestData } from '../components/types';
 
-type RequestData = {
-  headers: {};
-  content: string;
-};
-type RouteHandler = {
-  method: string;
-  serverName: string;
-  serverUrl: string;
-  prefix: string;
-};
-
-type ProxyData = {
-  handler: RouteHandler;
-  path: string;
-  statusCode: number;
-  request: RequestData;
-};
 export default function Home() {
   const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
   const addTrafficData = (data: ProxyData) =>
