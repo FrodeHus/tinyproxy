@@ -1,12 +1,29 @@
 import Head from 'next/head';
-import styles from '../styles/Home.module.css';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
-import { TrafficEntry } from '../components';
+import { RequestItem } from '../components';
+import AppBar from '@mui/material/AppBar';
+type RequestData = {
+  headers: { name: string; value: string }[];
+  content: string;
+};
+type RouteHandler = {
+  method: string;
+  serverName: string;
+  serverUrl: string;
+  prefix: string;
+};
 
-export default function Home() {
-  const [trafficData, setTrafficData] = useState([]);
-  const addTrafficData = (data) => setTrafficData((state) => [...state, data]);
+type ProxyData = {
+  handler: RouteHandler;
+  path: string;
+  statusCode: number;
+  request: RequestData;
+};
+export const Home: React.FC = ({}) => {
+  const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
+  const addTrafficData = (data: ProxyData) =>
+    setTrafficData((state) => [...state, data]);
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl('/proxyHub')
@@ -36,11 +53,23 @@ export default function Home() {
           path = path.value.toString();
         }
 
-        let item = {
+        const item = {
           path: path,
           statusCode: statusCode,
-          routeHandler: handler,
-          request: request
+          handler: {
+            method: handler.verb.method.toLowerCase(),
+            serverName: handler.remoteServer,
+            serverUrl: handler.remoteUrl,
+            prefix: handler.prefix
+          },
+          request: {
+            headers: request.headers.map(
+              (kvp: { key: string; value: string }) => {
+                return { name: kvp.key, value: kvp.value };
+              }
+            ),
+            content: ''
+          }
         };
 
         addTrafficData(item);
@@ -69,9 +98,9 @@ export default function Home() {
                 <div id="routed-traffic" className="traffic-section">
                   {trafficData.map(function (d, idx) {
                     return (
-                      <TrafficEntry
+                      <RequestItem
                         key={idx}
-                        handler={d.routeHandler}
+                        handler={d.handler}
                         path={d.path}
                         statusCode={d.statusCode}
                       />
@@ -85,4 +114,4 @@ export default function Home() {
       </main>
     </div>
   );
-}
+};
