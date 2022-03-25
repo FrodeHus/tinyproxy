@@ -1,6 +1,7 @@
 # TinyProxy
 
 [![.NET](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/build_and_test.yml)
+[![CodeQL](https://github.com/FrodeHus/tinyproxy/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/FrodeHus/tinyproxy/actions/workflows/codeql-analysis.yml)
 
 
 This project was born out of a need for a better local developer experience (IMHO) and thus the limitations of this proxy is **local**.
