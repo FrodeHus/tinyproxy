@@ -28,12 +28,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           version: 12.x
-      - run: cd tinyproxy_dashboard && npm install && npm run build
+      - run: cd src/tinyproxy_dashboard && npm install && npm run build
       - name: Build
-        run: dotnet build --configuration Release /p:Version=${VERSION}
+        run: dotnet build --configuration Release /p:Version=${VERSION} src/TinyProxy.csproj
       - name: Test
-        run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
+        run: dotnet test --configuration Release /p:Version=${VERSION} --no-build src/TinyProxy.csproj
       - name: Pack
-        run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+        run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output . src/TinyProxy.csproj
       - name: Push
         run: nuget push **\*.nupkg -NoSymbols -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
