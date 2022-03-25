@@ -74,7 +74,12 @@ Create a config file such as `proxy_dev.json`:
       "Url": "https://api.wishthisexisted.dev",
       "Prefix": "/weather"
       "Routes": [
-        "/weatherforecast"
+                 {
+                    "RelativePath": "/weatherforecast",
+                    "HttpMethods": [
+                        "GET",
+                      ]
+                 }
       ]
     }
   ]
