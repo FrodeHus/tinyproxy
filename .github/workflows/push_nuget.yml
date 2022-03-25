@@ -34,6 +34,6 @@ jobs:
       - name: Test
         run: dotnet test --configuration Release /p:Version=${VERSION} --no-build src/TinyProxy.csproj
       - name: Pack
-        run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output . src/TinyProxy.csproj
+        run: cp README.md src/ && dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output . src/TinyProxy.csproj
       - name: Push
         run: nuget push **\*.nupkg -NoSymbols -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
