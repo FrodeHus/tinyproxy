@@ -51,10 +51,15 @@ public class Proxy
             _app.UseMiddleware<ResponseLogging>();
         }
 
-        _app.UseCors(c =>
+        if (_app.Environment.IsDevelopment())
         {
-            c.WithOrigins("http://localhost:5000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-        });
+            _app.UseCors(c =>
+            {
+                c.WithOrigins("http://localhost:5000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        }
+
         _app.UseRouting();
         _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>
@@ -65,9 +70,9 @@ public class Proxy
                 throw new ArgumentNullException(nameof(routeConfigurator));
             }
 
+            endpoints.MapHub<ProxyHub>("/tinyproxy/hub");
             routeConfigurator.MapEndpoints(endpoints, routes, _visualizer.DisplayRequest);
             endpoints.MapMetrics();
-            endpoints.MapHub<ProxyHub>("/proxyHub");
         });
     }
 

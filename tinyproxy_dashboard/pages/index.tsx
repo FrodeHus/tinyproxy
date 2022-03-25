@@ -11,7 +11,7 @@ export default function Home() {
     setTrafficData((state) => [...state, data]);
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:5000/proxyHub')
+      .withUrl('http://localhost:5000/tinyproxy/hub')
       .configureLogging(LogLevel.Information)
       .build();
 
