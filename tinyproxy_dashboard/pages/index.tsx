@@ -2,9 +2,9 @@ import Head from 'next/head';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
 import { RequestItem } from '../components';
-import AppBar from '@mui/material/AppBar';
+
 type RequestData = {
-  headers: { name: string; value: string }[];
+  headers: {};
   content: string;
 };
 type RouteHandler = {
@@ -20,13 +20,13 @@ type ProxyData = {
   statusCode: number;
   request: RequestData;
 };
-export const Home: React.FC = ({}) => {
+export default function Home() {
   const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
   const addTrafficData = (data: ProxyData) =>
     setTrafficData((state) => [...state, data]);
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl('/proxyHub')
+      .withUrl('http://localhost:5000/proxyHub')
       .configureLogging(LogLevel.Information)
       .build();
 
@@ -46,28 +46,24 @@ export const Home: React.FC = ({}) => {
 
     connection.on(
       'GetTrafficSummary',
-      function (path, statusCode, handler, request) {
+      function (path, statusCode, handler, requestData) {
         if (!path.hasValue || path.value === '') {
           path = '/';
         } else {
           path = path.value.toString();
         }
-
+        console.log(requestData);
         const item = {
           path: path,
           statusCode: statusCode,
           handler: {
             method: handler.verb.method.toLowerCase(),
             serverName: handler.remoteServer,
-            serverUrl: handler.remoteUrl,
+            serverUrl: handler.remoteServerBaseUrl,
             prefix: handler.prefix
           },
           request: {
-            headers: request.headers.map(
-              (kvp: { key: string; value: string }) => {
-                return { name: kvp.key, value: kvp.value };
-              }
-            ),
+            headers: requestData.headers,
             content: ''
           }
         };
@@ -114,4 +110,4 @@ export const Home: React.FC = ({}) => {
       </main>
     </div>
   );
-};
+}

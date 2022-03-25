@@ -18,17 +18,19 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false, int port = 5000, bool verbose = false)
+    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false,
+        int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();
-        builder.WebHost.ConfigureKestrel((_, options) => options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2));
+        builder.WebHost.ConfigureKestrel((_, options) =>
+            options.ListenLocalhost(port, o => o.Protocols = HttpProtocols.Http1AndHttp2));
         builder.Logging.SetMinimumLevel(logLevel);
         builder.Logging.AddFilter((_, _, level) => level == logLevel);
         builder.Services.AddHttpForwarder();
         builder.Services.AddHttpClient();
         builder.Services.AddSingleton<RouteConfigurator>();
         builder.Services.AddSignalR();
-
+        builder.Services.AddCors();
         _app = builder.Build();
 
         if (_app.Environment.IsDevelopment())
@@ -48,7 +50,11 @@ public class Proxy
             _app.UseMiddleware<RequestLogging>();
             _app.UseMiddleware<ResponseLogging>();
         }
-        
+
+        _app.UseCors(c =>
+        {
+            c.WithOrigins("http://localhost:5000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        });
         _app.UseRouting();
         _app.UseMetricServer();
         _app.UseEndpoints(endpoints =>

@@ -1,5 +1,7 @@
 import React, { FunctionComponent } from 'react';
-
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 type RequestItemProps = {
   handler: any;
   path: string;
@@ -20,12 +22,19 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
 }) => {
   const statusClass = getStatusClass(statusCode);
   return (
-    <div className={'traffic-block ' + handler.verb.method.toLowerCase()}>
-      <div className="traffic-summary">
-        <span className="upstream-server">{handler.remoteServer}</span>
-        <span className="request-path-summary">{path}</span>
-        <span className={'request-status ' + statusClass}>{statusCode}</span>
-      </div>
-    </div>
+    <Accordion>
+      <AccordionSummary>
+        <div className={'traffic-block ' + handler.method}>
+          <div className="traffic-summary">
+            <span className="upstream-server">{handler.serverName}</span>
+            <span className="request-path-summary">{path}</span>
+            <span className={'request-status ' + statusClass}>
+              {statusCode}
+            </span>
+          </div>
+        </div>
+      </AccordionSummary>
+      <AccordionDetails>Testing</AccordionDetails>
+    </Accordion>
   );
 };
