@@ -2,8 +2,6 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -20,7 +18,7 @@ a {
   --primary-background: #ffffff;
   --color1: #9bb3e8;
   --color2: #bcccef;
-  --accent-color: #58867D;
+  --accent-color: #58867d;
   --method-post: 73, 204, 144;
   --method-delete: 255, 83, 106;
   --method-put: 252, 161, 48;
@@ -33,7 +31,6 @@ body {
 }
 
 .tinyproxy-ui {
-  font-family: sans-serif;
   color: var(--primary-color);
 }
 
@@ -80,20 +77,17 @@ body {
   color: rgba(var(--method-get), 0.8);
 }
 
-
 .traffic-block.put {
   border-color: rgb(var(--method-put));
   background-color: rgba(var(--method-put), 0.2);
   color: rgba(var(--method-put), 0.8);
 }
 
-
 .traffic-block.delete {
   border-color: rgb(var(--method-delete));
   background-color: rgba(var(--method-delete), 0.2);
   color: rgba(var(--method-delete), 0.8);
 }
-
 
 .traffic-block.post {
   border-color: rgb(var(--method-post));
@@ -132,11 +126,11 @@ body {
   flex: 1;
 }
 
-.request-status.ok{
+.request-status.ok {
   color: forestgreen;
 }
 
-.request-status.error{
+.request-status.error {
   color: rgb(var(--method-delete));
 }
 
@@ -153,12 +147,12 @@ body {
   flex: 1;
 }
 
-.traffic-details{
+.traffic-details {
   margin: 0;
   padding: 0;
 }
 
-.panel{
+.panel {
   background-color: #ffffff;
   border: 1px solid var(--color1);
   margin: 0 0 25px 0;
@@ -166,7 +160,7 @@ body {
   overflow: hidden;
 }
 
-.panel-title{
+.panel-title {
   color: var(--primary-color);
   text-transform: uppercase;
   margin: 0;
@@ -177,7 +171,7 @@ body {
   border-bottom: 1px solid #e6e6ec;
 }
 
-.header-list{
+.header-list {
   list-style-type: none;
   color: var(--primary-color);
 }

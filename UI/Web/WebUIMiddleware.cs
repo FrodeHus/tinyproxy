@@ -9,6 +9,7 @@ namespace TinyProxy.UI.Web;
 
 public class WebUIMiddleware
 {
+    private readonly RequestDelegate _next;
     private readonly WebUIOptions _options;
     private readonly StaticFileMiddleware _staticFileMiddleware;
     private const string EmbeddedFileNamespace = "tinyproxy_dashboard/out";
@@ -17,6 +18,7 @@ public class WebUIMiddleware
         ILoggerFactory loggerFactory,
         WebUIOptions options)
     {
+        _next = next;
         _options = options;
         _staticFileMiddleware = CreateStaticFileMiddleware(next, hostingEnv, loggerFactory, options);
     }
@@ -25,7 +27,12 @@ public class WebUIMiddleware
     {
         var httpMethod = httpContext.Request.Method;
         var path = httpContext.Request.Path.Value;
-
+        if (!Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
+        {
+            await _next(httpContext);
+            return;
+        }
+        
         if (httpMethod == "GET" &&
             Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
         {
