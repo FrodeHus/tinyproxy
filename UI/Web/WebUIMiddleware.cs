@@ -27,7 +27,7 @@ public class WebUIMiddleware
     {
         var httpMethod = httpContext.Request.Method;
         var path = httpContext.Request.Path.Value;
-        if (!Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
+        if (!Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?", RegexOptions.IgnoreCase))
         {
             await _next(httpContext);
             return;
