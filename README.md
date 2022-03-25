@@ -8,6 +8,7 @@ This project was born out of a need for a better local developer experience (IMH
 
 TinyProxy will only bind to localhost - it is meant as a local development proxy.
 
+![TinyProxy WebUI](docs/tinyproxy-webui.png)
 ## Installation
 
 ### Dotnet Tool
@@ -42,6 +43,7 @@ Create a config file (see below) and run `dotnet TinyProxy start -f <configfile>
 
 If `<configfile>` is omitted, it will default to `{APPDATA}/tinyproxyconfig.json`.
 
+If you want to use the web UI - run `dotnet TinyProxy start -u`
 
 ## Configuration
 
