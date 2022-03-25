@@ -16,7 +16,7 @@
     <PackageProjectUrl>https://github.com/FrodeHus/TinyProxy</PackageProjectUrl>
     <RepositoryUrl>https://github.com/FrodeHus/TinyProxy</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>../README.md</PackageReadmeFile>
     <PackageTags>dotnet</PackageTags>
     <Copyright>Copyright 2022 - Frode Hus</Copyright>
     <IncludeBuildOutput>false</IncludeBuildOutput>
