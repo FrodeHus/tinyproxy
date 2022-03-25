@@ -6,11 +6,13 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import { Chip, Badge, Tabs, Tab, Box, Stack } from '@mui/material';
 import { HeaderDetails } from './headerdetails';
+import { ContentDetails } from './contentdetails';
 type RequestItemProps = {
   handler: RouteHandler;
   path: string;
   statusCode: number;
   request: RequestData;
+  response: RequestData;
 };
 const getStatusClass = (statusCode: number) => {
   if (statusCode < 200 || statusCode >= 400) {
@@ -54,7 +56,8 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
   handler,
   path,
   statusCode,
-  request
+  request,
+  response
 }) => {
   const [view, setView] = React.useState(0);
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -89,9 +92,11 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
           </Box>
           <TabPanel value={view} index={0}>
             <HeaderDetails headers={request.headers} />
+            <ContentDetails content={request.content}/>
           </TabPanel>
           <TabPanel value={view} index={1}>
-            <Typography>not implemented</Typography>
+            <HeaderDetails headers={response.headers} />
+            <ContentDetails content={response.content}/>
           </TabPanel>
         </Box>{' '}
       </AccordionDetails>
