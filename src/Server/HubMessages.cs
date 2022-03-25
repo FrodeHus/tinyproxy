@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
 using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
 using TinyProxy.Models;
@@ -10,44 +11,33 @@ public class HubMessages
 {
     private readonly RequestDelegate _requestDelegate;
     private readonly IHubContext<ProxyHub> _hub;
+    private readonly IMemoryCache _cache;
 
-    public HubMessages(RequestDelegate requestDelegate, IHubContext<ProxyHub> hub)
+    public HubMessages(RequestDelegate requestDelegate, IHubContext<ProxyHub> hub, IMemoryCache cache)
     {
         _requestDelegate = requestDelegate;
         _hub = hub;
+        _cache = cache;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        httpContext.Request.EnableBuffering();
-        HttpResponse httpResponse = httpContext.Response;
-        Stream originalBody = httpResponse.Body;
-        using var memoryStream = new MemoryStream();
-        httpResponse.Body = memoryStream;
         await _requestDelegate(httpContext);
         if (httpContext.Items["handler"] is ProxyRoute handler)
         {
             var request =
                 new ProxyData(httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()), ProxyDataType.Request);
-            if (httpContext.Request.ContentLength > 0)
+            if (httpContext.Request.ContentLength > 0 && httpContext.Items["request"] is string requestCacheId)
             {
-                await using var reader = new MemoryStream();
-                await httpContext.Request.Body.CopyToAsync(reader);
-                request.Content = Convert.ToBase64String(reader.ToArray());
+                request.Content = (string)_cache.Get(requestCacheId);
             }
             var response = new ProxyData(httpContext.Response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()), ProxyDataType.Response);
-            if (httpContext.Response.Body.Length > 0)
+            if (httpContext.Items["response"] is string responseCacheId)
             {
-                httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
-                await using var reader = new MemoryStream();
-                await httpContext.Response.Body.CopyToAsync(reader);
-                response.Content = Convert.ToBase64String(reader.ToArray());
+                response.Content = (string)_cache.Get(responseCacheId);
             }
             await _hub.Clients.All.SendAsync("ReceiveProxyData", httpContext.Request.Path, httpContext.Response.StatusCode, handler, request, response);
         }
-        httpResponse.Body.Seek(0, SeekOrigin.Begin);
-        await memoryStream.CopyToAsync(originalBody);
-        httpContext.Response.Body = originalBody;
     }
 
 }
