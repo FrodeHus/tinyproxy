@@ -30,14 +30,13 @@ export default function Home() {
     });
 
     connection.on(
-      'GetTrafficSummary',
-      function (path, statusCode, handler, requestData) {
+      'ReceiveProxyData',
+      function (path, statusCode, handler, requestData, responseData) {
         if (!path.hasValue || path.value === '') {
           path = '/';
         } else {
           path = path.value.toString();
         }
-        console.log(requestData);
         const item = {
           path: path,
           statusCode: statusCode,
@@ -49,7 +48,11 @@ export default function Home() {
           },
           request: {
             headers: requestData.headers,
-            content: ''
+            content: requestData.content
+          },
+          response: {
+            headers: responseData.headers,
+            content: responseData.content
           }
         };
 
@@ -90,6 +93,7 @@ export default function Home() {
                       path={d.path}
                       statusCode={d.statusCode}
                       request={d.request}
+                      response={d.response}
                     />
                   );
                 })}

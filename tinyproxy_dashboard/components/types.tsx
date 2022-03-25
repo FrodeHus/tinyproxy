@@ -15,4 +15,5 @@ export type ProxyData = {
   path: string;
   statusCode: number;
   request: RequestData;
+  response: RequestData;
 };
