@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr"
-import { useEffect, useState } from 'react/cjs/react.production.min';
+import { useEffect, useState } from 'react';
 import { TrafficEntry } from '../components'
 
 

@@ -1,22 +1,16 @@
-import { Component, useEffect, useState } from 'react/cjs/react.production.min';
-
-export default class TrafficEntry extends Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
+export default function TrafficEntry(props) {
     let statusClass = "ok";
-    if (this.props.statusCode < 200 || this.props.statusCode >= 400) {
+    let {handler,path,statusCode} = props;
+    if (statusCode < 200 || statusCode >= 400) {
       statusClass = "error";
     }
     return (
-      <div className={"traffic-block " + this.props.handler.verb.method.toLowerCase()}>
+      <div className={"traffic-block " + handler.verb.method.toLowerCase()}>
         <div className="traffic-summary">
-          <span className="upstream-server">{this.props.handler.remoteServer}</span>
-          <span className="request-path-summary">{this.props.path}</span>
-          <span className={"request-status " + statusClass}>{this.props.statusCode}</span>
+          <span className="upstream-server">{handler.remoteServer}</span>
+          <span className="request-path-summary">{path}</span>
+          <span className={"request-status " + statusClass}>{statusCode}</span>
         </div>
       </div>
     );
   }
-}
