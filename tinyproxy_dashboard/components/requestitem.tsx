@@ -3,6 +3,8 @@ import { RouteHandler, ProxyData, RequestData } from '../components/types';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import { Chip, Badge } from '@mui/material';
 type RequestItemProps = {
   handler: RouteHandler;
   path: string;
@@ -25,17 +27,22 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
   return (
     <Accordion>
       <AccordionSummary>
-        <div className={'traffic-block ' + handler.method}>
-          <div className="traffic-summary">
-            <span className="upstream-server">{handler.serverName}</span>
-            <span className="request-path-summary">{path}</span>
-            <span className={'request-status ' + statusClass}>
-              {statusCode}
-            </span>
-          </div>
-        </div>
+        <Badge
+          badgeContent={statusCode}
+          max={1000}
+          color="primary"
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left'
+          }}
+        >
+          <Chip label={handler.method}></Chip>
+        </Badge>
+        <Typography>{path}</Typography>
       </AccordionSummary>
-      <AccordionDetails>Testing</AccordionDetails>
+      <AccordionDetails>
+        <Typography>Testing</Typography>
+      </AccordionDetails>
     </Accordion>
   );
 };
