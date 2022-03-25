@@ -10,7 +10,7 @@ public class ProxyData
 
     public Dictionary<string, string> Headers { get; init; } = new Dictionary<string, string>();
     public ProxyDataType Type { get; set; }
-    public string Content { get; set; }
+    public string Content { get; set; } = null!;
     public ProxyData()
     {
     }

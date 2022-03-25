@@ -4,6 +4,7 @@ using TinyProxy.Infrastructure;
 using TinyProxy.UI;
 using System;
 using TinyProxy.UI.CommandLine;
+using System.Text.RegularExpressions;
 
 public class ResponseLogging
 {
@@ -50,12 +51,12 @@ public class ResponseLogging
             AnsiConsole.MarkupLine($"[{Color.Cornsilk1}]Content: [/]");
             Console.WriteLine(content);
         }
-        if (handler != null && !string.IsNullOrEmpty(handler.Prefix))
+        if (handler != null && !string.IsNullOrEmpty(handler.Prefix) && Regex.IsMatch(content, @"(href|src)=[""'](\/)[^\w""]*", RegexOptions.IgnoreCase))
         {
-            content = content.Replace("href=\"/", $"href=\"{handler.Prefix}/");
-            memoryStream.Seek(0, SeekOrigin.Begin);
+            content = Regex.Replace(content, @"(href|src)=[""'](\/)[^\w""]*", @$"href=""{handler.Prefix}/");
+            httpResponse.Body.Seek(0, SeekOrigin.Begin);
             var contentBytes = Encoding.UTF8.GetBytes(content);
-            await memoryStream.WriteAsync(contentBytes);
+            await httpResponse.Body.WriteAsync(contentBytes);
         }
         httpResponse.Body.Seek(0, SeekOrigin.Begin);
 

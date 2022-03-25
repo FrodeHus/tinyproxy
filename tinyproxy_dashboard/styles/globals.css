@@ -1,103 +1,13 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --primary-color: #000000;
-  --primary-background: #ffffff;
-  --color1: #9bb3e8;
-  --color2: #bcccef;
-  --accent-color: #58867d;
-  --method-post: 73, 204, 144;
-  --method-delete: 255, 83, 106;
-  --method-put: 252, 161, 48;
-  --method-get: 97, 175, 254;
-}
-
-body {
-  background-color: var(--primary-background);
-  height: 100%;
-}
-
-.tinyproxy-ui {
-  color: var(--primary-color);
-}
-
-.tinyproxy-ui .topbar {
-  padding: 10px 0;
-  background-color: var(--color1);
-}
-
-.wrapper {
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.block {
-  display: block;
-}
-
-.title {
-  display: flex;
-  margin: 0;
-  padding-left: 10px;
-  font-size: 1.2em;
-}
-
-.traffic-section {
-  height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.traffic-block {
-  margin: 0 0 15px;
-  border: 1px solid var(--color2);
-  border-radius: 4px;
-  box-shadow: 0 0 3px rgb(0 0 0 / 19%);
-}
-
-.traffic-block.get {
-  border-color: rgb(var(--method-get));
-  background-color: rgba(var(--method-get), 0.2);
-  color: rgba(var(--method-get), 0.8);
-}
-
-.traffic-block.put {
-  border-color: rgb(var(--method-put));
-  background-color: rgba(var(--method-put), 0.2);
-  color: rgba(var(--method-put), 0.8);
-}
-
-.traffic-block.delete {
-  border-color: rgb(var(--method-delete));
-  background-color: rgba(var(--method-delete), 0.2);
-  color: rgba(var(--method-delete), 0.8);
-}
-
-.traffic-block.post {
-  border-color: rgb(var(--method-post));
-  background-color: rgba(var(--method-post), 0.2);
-  color: rgba(var(--method-post), 0.8);
-}
-
-.traffic-summary {
-  display: flex;
-  align-items: center;
+pre {
+  outline: 1px solid #ccc;
+  padding: 5px;
+  margin: 5px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 .request-path-summary {
@@ -108,70 +18,5 @@ body {
   padding: 0 10px;
   font-family: monospace;
   font-weight: 600;
-  color: var(--primary-color);
   flex: 10;
-}
-
-.request-status {
-  font-size: 14px;
-  font-weight: 800;
-  min-width: 80px;
-  padding: 6px;
-  align-self: flex-end;
-  text-align: right;
-  border-radius: 3px 0 0 3px;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
-  font-family: sans-serif;
-  color: rgba(var(--primary-color), 0.8);
-  flex: 1;
-}
-
-.request-status.ok {
-  color: forestgreen;
-}
-
-.request-status.error {
-  color: rgb(var(--method-delete));
-}
-
-.upstream-server {
-  font-size: 14px;
-  font-weight: 800;
-  min-width: 80px;
-  padding: 6px;
-  text-align: left;
-  border-radius: 3px 0 0 3px;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 10%);
-  font-family: sans-serif;
-  color: rgba(var(--primary-color), 0.8);
-  flex: 1;
-}
-
-.traffic-details {
-  margin: 0;
-  padding: 0;
-}
-
-.panel {
-  background-color: #ffffff;
-  border: 1px solid var(--color1);
-  margin: 0 0 25px 0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.panel-title {
-  color: var(--primary-color);
-  text-transform: uppercase;
-  margin: 0;
-  padding: 15px 20px;
-  font-weight: 900;
-  font-size: 14px;
-  background: #f4f4f9;
-  border-bottom: 1px solid #e6e6ec;
-}
-
-.header-list {
-  list-style-type: none;
-  color: var(--primary-color);
 }

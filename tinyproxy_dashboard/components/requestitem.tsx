@@ -63,6 +63,7 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setView(newValue);
   };
+  const contentType = request.headers;
   return (
     <Accordion>
       <AccordionSummary>
@@ -79,6 +80,8 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
             <Chip variant="outlined" label={handler.method.toUpperCase()} />
           </Badge>
           <Chip color="primary" label={handler.serverName} />
+          <Chip color="secondary" label={handler.prefix} />
+          {handler.preferred && <Chip color="info" label="preferred"></Chip>}
         </Stack>
         <span className="request-path-summary">{path}</span>
       </AccordionSummary>
@@ -92,11 +95,11 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
           </Box>
           <TabPanel value={view} index={0}>
             <HeaderDetails headers={request.headers} />
-            <ContentDetails content={request.content}/>
+            <ContentDetails content={request.content} contentType={ ""}/>
           </TabPanel>
           <TabPanel value={view} index={1}>
             <HeaderDetails headers={response.headers} />
-            <ContentDetails content={response.content}/>
+            <ContentDetails content={response.content}  contentType={ ""}/>
           </TabPanel>
         </Box>{' '}
       </AccordionDetails>
