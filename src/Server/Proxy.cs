@@ -4,6 +4,7 @@ using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
 using TinyProxy.UI.CommandLine;
 using TinyProxy.UI.Web;
+using TinyProxy.Server;
 
 namespace TinyProxy.Server;
 
@@ -31,6 +32,7 @@ public class Proxy
         builder.Services.AddSingleton<RouteConfigurator>();
         builder.Services.AddSignalR();
         builder.Services.AddCors();
+        builder.Services.AddMemoryCache();
         _app = builder.Build();
 
         if (_app.Environment.IsDevelopment())
@@ -50,6 +52,8 @@ public class Proxy
             _app.UseMiddleware<RequestLogging>();
             _app.UseMiddleware<ResponseLogging>();
         }
+
+        _app.UseMiddleware<RequestIntercept>();
 
         if (_app.Environment.IsDevelopment())
         {

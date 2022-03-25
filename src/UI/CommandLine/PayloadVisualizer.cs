@@ -4,51 +4,48 @@ namespace TinyProxy.UI.CommandLine;
 
 public static class PayloadVisualizer
 {
-    public static async Task<string> Visualize(string contentType, Stream content)
+    public static string Visualize(string contentType, string content)
     {
         if (string.IsNullOrEmpty(contentType))
         {
-            return await GenericContent(content);
+            return GenericContent(content);
         }
-        
-        if (contentType.ToLowerInvariant().Contains("application/json"))
+
+        if (contentType.Contains("application/json", StringComparison.InvariantCultureIgnoreCase))
         {
-            return await JsonContent(content);
+            return JsonContent(content);
         }
 
-        if (contentType.ToLowerInvariant().Contains("html"))
+        if (contentType.Contains("html", StringComparison.InvariantCultureIgnoreCase))
         {
-            return await HtmlContent(content);
+            return HtmlContent(content);
         }
-        if (contentType.ToLowerInvariant().Contains("text/"))
+        if (contentType.Contains("text/", StringComparison.InvariantCultureIgnoreCase))
         {
-            return await TextContent(content);
+            return TextContent(content);
         }
 
-        return await GenericContent(content);
+        return GenericContent(content);
     }
 
-    private static async Task<string> HtmlContent(Stream content)
+    private static string HtmlContent(string content)
     {
-        return await TextContent(content);
+        return TextContent(content);
     }
 
-    private static async Task<string> GenericContent(Stream content)
+    private static string GenericContent(string content)
     {
-        await using var reader = new MemoryStream();
-        await content.CopyToAsync(reader);
-        return Convert.ToBase64String(reader.ToArray());
+        return content;
     }
 
-    private static async Task<string> JsonContent(Stream content)
+    private static string JsonContent(string content)
     {
-        return await TextContent(content);
+        return TextContent(content);
     }
 
-    private static async Task<string> TextContent(Stream content)
+    private static string TextContent(string content)
     {
-        using var reader = new StreamReader(content, Encoding.UTF8, true, 1024, true);
-        var payload = await reader.ReadToEndAsync();
-        return payload;
+        var payload = Convert.FromBase64String(content);
+        return Encoding.UTF8.GetString(payload);
     }
 }
