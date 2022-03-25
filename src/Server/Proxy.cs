@@ -52,7 +52,7 @@ public class Proxy
             _app.UseMiddleware<RequestLogging>();
             _app.UseMiddleware<ResponseLogging>();
         }
-
+        _app.UseMiddleware<ResponseRewriter>();
         _app.UseMiddleware<RequestIntercept>();
 
         if (_app.Environment.IsDevelopment())

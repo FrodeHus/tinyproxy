@@ -17,6 +17,10 @@ public class ResponseRewriter
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
+        HttpResponse httpResponse = httpContext.Response;
+        Stream originalBody = httpResponse.Body;
+        using var memoryStream = new MemoryStream();
+        httpResponse.Body = memoryStream;
         await requestDelegate(httpContext);
         var cacheId = httpContext.Items["response"];
         if (cache.Get(cacheId) is not string encodedContent)
@@ -33,5 +37,8 @@ public class ResponseRewriter
             contentBytes = Encoding.UTF8.GetBytes(content);
             await httpContext.Response.Body.WriteAsync(contentBytes);
         }
+        httpResponse.Body.Seek(0, SeekOrigin.Begin);
+        await memoryStream.CopyToAsync(originalBody);
+        httpResponse.Body = originalBody;
     }
 }
