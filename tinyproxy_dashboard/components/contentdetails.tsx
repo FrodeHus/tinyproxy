@@ -9,6 +9,7 @@ import React from 'react';
 
 type ContentDetailsProps = {
   content: string;
+  contentType: string;
 };
 
 const decode = (str: string): string =>
@@ -23,6 +24,7 @@ const getContent = (str: string, encoded: boolean): string => {
   }
   return decode(str);
 };
+
 
 export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
   const [encoded, setEncoded] = React.useState(true);
@@ -39,7 +41,7 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
         label="Encoded"
       />
       <Box sx={{ overflowWrap: 'anywhere' }}>
-        <Typography>{getContent(content, encoded)}</Typography>
+        <pre>{getContent(content, encoded)}</pre>
       </Box>
     </Box>
   );

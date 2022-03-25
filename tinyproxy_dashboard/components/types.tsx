@@ -8,7 +8,15 @@ export type RouteHandler = {
   serverName: string;
   serverUrl: string;
   prefix: string;
+  swaggerEndpoint?: string;
+  preferred: boolean;
+  routes?: StaticRoute[];
 };
+
+export type StaticRoute = {
+  relativePath: string;
+  httpMethods: string[];
+}
 
 export type ProxyData = {
   handler: RouteHandler;

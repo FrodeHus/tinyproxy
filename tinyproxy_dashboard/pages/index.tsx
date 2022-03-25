@@ -44,7 +44,10 @@ export default function Home() {
             method: handler.verb.method.toLowerCase(),
             serverName: handler.remoteServer,
             serverUrl: handler.remoteServerBaseUrl,
-            prefix: handler.prefix
+            prefix: handler.prefix,
+            preferred: handler.preffered,
+            swaggerEndpoint: handler.swaggerEndpoint,
+            routes: handler.routes
           },
           request: {
             headers: requestData.headers,
