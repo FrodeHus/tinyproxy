@@ -1,8 +1,4 @@
 import Head from 'next/head';
-import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { useEffect, useState } from 'react';
-import { RequestItem } from '../components';
-import { ProxyData } from '../components/types';
 import {
   Accordion,
   AccordionDetails,
@@ -12,7 +8,6 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { useTinyContext } from '../context/tinycontext';
 import { Inspector } from '../components/inspector';
 import { RequestView } from '../components/requestlist';
 
