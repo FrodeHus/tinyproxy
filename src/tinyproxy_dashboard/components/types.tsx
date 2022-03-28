@@ -16,7 +16,7 @@ export type RouteHandler = {
 export type StaticRoute = {
   relativePath: string;
   httpMethods: string[];
-}
+};
 
 export type ProxyData = {
   handler: RouteHandler;

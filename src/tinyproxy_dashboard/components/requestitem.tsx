@@ -95,11 +95,11 @@ export const RequestItem: FunctionComponent<RequestItemProps> = ({
           </Box>
           <TabPanel value={view} index={0}>
             <HeaderDetails headers={request.headers} />
-            <ContentDetails content={request.content} contentType={ ""}/>
+            <ContentDetails content={request.content} contentType={''} />
           </TabPanel>
           <TabPanel value={view} index={1}>
             <HeaderDetails headers={response.headers} />
-            <ContentDetails content={response.content}  contentType={ ""}/>
+            <ContentDetails content={response.content} contentType={''} />
           </TabPanel>
         </Box>{' '}
       </AccordionDetails>

@@ -3,9 +3,20 @@ import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useEffect, useState } from 'react';
 import { RequestItem } from '../components';
 import { ProxyData } from '../components/types';
-import { AppBar, Box, Toolbar, Typography } from '@mui/material';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  AppBar,
+  Box,
+  Toolbar,
+  Typography
+} from '@mui/material';
+import { useTinyContext } from '../context/tinycontext';
+import { Inspector } from '../components/inspector';
 
 export default function Home() {
+  const { currentRequest, setCurrentRequest } = useTinyContext();
   const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
   const addTrafficData = (data: ProxyData) =>
     setTrafficData((state) => [...state, data]);
@@ -84,6 +95,16 @@ export default function Home() {
                 </Typography>
               </Toolbar>
             </AppBar>
+          </Box>
+          <Box>
+            <Accordion>
+              <AccordionSummary id="inspector-header">
+                <Typography>Request inspector</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Inspector />
+              </AccordionDetails>
+            </Accordion>
           </Box>
           <Box sx={{ padding: 2 }}>
             <section className="block">
