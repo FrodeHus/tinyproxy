@@ -1,4 +1,5 @@
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { Chip } from '@mui/material';
 import { DataGrid, GridColDef, MuiEvent } from '@mui/x-data-grid';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
@@ -100,11 +101,33 @@ export const RequestView: FunctionComponent = () => {
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', flex: 1 },
-    { field: 'upstream', headerName: 'Upstream', flex: 5 },
+    { field: 'upstream', headerName: 'Upstream', flex: 5, cellClassName: "upstream-server" },
     { field: 'prefix', headerName: 'Prefix', flex: 5 },
     { field: 'path', headerName: 'Path', flex: 30 },
-    { field: 'method', headerName: 'Method', flex: 2 },
-    { field: 'statusCode', headerName: 'Status', flex: 2 },
+    {
+      field: 'method',
+      headerName: 'Method',
+      flex: 2,
+      renderCell: (cellValues) => {
+        console.log(cellValues);
+        return (
+          <Chip variant="outlined" label={cellValues['value'].toUpperCase()} />
+        );
+      }
+    },
+    {
+      field: 'statusCode',
+      headerName: 'Status',
+      flex: 2,
+      renderCell: (cellValues) => {
+        const statusCode = cellValues['value'];
+        const statusClass =
+          statusCode < 200 || statusCode >= 400 ? 'error' : 'success';
+        return (
+          <Chip color={statusClass} label={cellValues['formattedValue']} />
+        );
+      }
+    },
     { field: 'preferred', headerName: 'Preferred', flex: 1 }
   ];
   return (
