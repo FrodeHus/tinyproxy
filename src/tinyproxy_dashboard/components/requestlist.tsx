@@ -139,8 +139,10 @@ export const RequestView: FunctionComponent = () => {
         const selectedRowData = proxyData.filter((row) =>
           selectedIDs.has(row.requestId.toString())
         );
-        if (setCurrentRequest && selectedRowData)
-          setCurrentRequest(selectedRowData[0]);
+          if (setCurrentRequest && selectedRowData) {
+              console.log("set current request: " + selectedRowData[0].requestId);
+              setCurrentRequest(selectedRowData[0]);
+          }
       }}
     />
   );
