@@ -5,5 +5,5 @@ type InspectorProps = {};
 
 export const Inspector: FunctionComponent<InspectorProps> = () => {
   const { currentRequest } = useTinyContext();
-  return <div></div>;
+  return <div>{currentRequest.path}</div>;
 };

@@ -109,7 +109,6 @@ export const RequestView: FunctionComponent = () => {
       headerName: 'Method',
       flex: 2,
       renderCell: (cellValues) => {
-        console.log(cellValues);
         return (
           <Chip variant="outlined" label={cellValues['value'].toUpperCase()} />
         );
