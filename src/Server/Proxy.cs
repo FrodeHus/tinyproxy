@@ -55,14 +55,11 @@ public class Proxy
         _app.UseMiddleware<ResponseRewriter>();
         _app.UseMiddleware<RequestIntercept>();
 
-        if (_app.Environment.IsDevelopment())
+        _app.UseCors(c =>
         {
-            _app.UseCors(c =>
-            {
-                c.WithOrigins("http://localhost:5000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        }
+            c.WithOrigins($"http://localhost:{port}", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
+                .AllowCredentials();
+        });
 
         _app.UseRouting();
         _app.UseMetricServer();

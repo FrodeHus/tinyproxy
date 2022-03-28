@@ -14,69 +14,10 @@ import {
 } from '@mui/material';
 import { useTinyContext } from '../context/tinycontext';
 import { Inspector } from '../components/inspector';
+import { RequestView } from '../components/requestlist';
 
 export default function Home() {
   const { currentRequest, setCurrentRequest } = useTinyContext();
-  const [trafficData, setTrafficData] = useState<ProxyData[]>([]);
-  const addTrafficData = (data: ProxyData) =>
-    setTrafficData((state) => [...state, data]);
-  useEffect(() => {
-    const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:5000/tinyproxy/hub')
-      .configureLogging(LogLevel.Information)
-      .build();
-
-    async function start() {
-      try {
-        await connection.start();
-        console.log('SignalR Connected.');
-      } catch (err) {
-        console.log(err);
-        setTimeout(start, 5000);
-      }
-    }
-
-    connection.onclose(async () => {
-      await start();
-    });
-
-    connection.on(
-      'ReceiveProxyData',
-      function (path, statusCode, handler, requestData, responseData) {
-        if (!path.hasValue || path.value === '') {
-          path = '/';
-        } else {
-          path = path.value.toString();
-        }
-        const item = {
-          path: path,
-          statusCode: statusCode,
-          handler: {
-            method: handler.verb.method.toLowerCase(),
-            serverName: handler.remoteServer,
-            serverUrl: handler.remoteServerBaseUrl,
-            prefix: handler.prefix,
-            preferred: handler.preffered,
-            swaggerEndpoint: handler.swaggerEndpoint,
-            routes: handler.routes
-          },
-          request: {
-            headers: requestData.headers,
-            content: requestData.content
-          },
-          response: {
-            headers: responseData.headers,
-            content: responseData.content
-          }
-        };
-
-        addTrafficData(item);
-      }
-    );
-
-    // Start the connection.
-    start();
-  }, []);
 
   return (
     <div>
@@ -107,22 +48,7 @@ export default function Home() {
             </Accordion>
           </Box>
           <Box sx={{ padding: 2 }}>
-            <section className="block">
-              <div id="routed-traffic" className="traffic-section">
-                {trafficData.map(function (d, idx) {
-                  return (
-                    <RequestItem
-                      key={idx}
-                      handler={d.handler}
-                      path={d.path}
-                      statusCode={d.statusCode}
-                      request={d.request}
-                      response={d.response}
-                    />
-                  );
-                })}
-              </div>
-            </section>
+            <RequestView />
           </Box>
         </div>
       </main>

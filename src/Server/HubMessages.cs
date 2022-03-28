@@ -12,6 +12,7 @@ public class HubMessages
     private readonly RequestDelegate _requestDelegate;
     private readonly IHubContext<ProxyHub> _hub;
     private readonly IMemoryCache _cache;
+    private int _requestIndex = 0;
 
     public HubMessages(RequestDelegate requestDelegate, IHubContext<ProxyHub> hub, IMemoryCache cache)
     {
@@ -25,6 +26,7 @@ public class HubMessages
         await _requestDelegate(httpContext);
         if (httpContext.Items["handler"] is ProxyRoute handler)
         {
+            _requestIndex++;
             var request =
                 new ProxyData(httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()), ProxyDataType.Request);
             if (httpContext.Request.ContentLength > 0 && httpContext.Items["request"] is string requestCacheId)
@@ -36,7 +38,7 @@ public class HubMessages
             {
                 response.Content = (string)_cache.Get(responseCacheId);
             }
-            await _hub.Clients.All.SendAsync("ReceiveProxyData", httpContext.Request.Path, httpContext.Response.StatusCode, handler, request, response);
+            await _hub.Clients.All.SendAsync("ReceiveProxyData", _requestIndex, httpContext.Request.Path, httpContext.Response.StatusCode, handler, request, response);
         }
     }
 

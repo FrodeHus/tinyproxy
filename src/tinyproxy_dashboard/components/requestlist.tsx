@@ -1,0 +1,125 @@
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { DataGrid, GridColDef, MuiEvent } from '@mui/x-data-grid';
+import { FunctionComponent, useEffect, useState } from 'react';
+import { useTinyContext } from '../context/tinycontext';
+import { ProxyData } from './types';
+
+type RequestRow = {
+  id: number;
+  path: string;
+  prefix: string;
+  method: string;
+  statusCode: number;
+  upstream: string;
+  preferred: boolean;
+};
+
+export const RequestView: FunctionComponent = () => {
+  const [requestRows, setRequestRows] = useState<RequestRow[]>([]);
+  const [proxyData, setProxyData] = useState<ProxyData[]>([]);
+  const { setCurrentRequest } = useTinyContext();
+  const addRequestRow = (data: ProxyData) =>
+    setRequestRows((state) => [
+      ...state,
+      {
+        id: data.requestId,
+        method: data.handler.method,
+        prefix: data.handler.prefix,
+        path: data.path,
+        statusCode: data.statusCode,
+        upstream: data.handler.serverName,
+        preferred: data.handler.preferred
+      }
+    ]);
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl('http://localhost:5000/tinyproxy/hub')
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    async function start() {
+      try {
+        await connection.start();
+        console.log('SignalR Connected.');
+      } catch (err) {
+        console.log(err);
+        setTimeout(start, 5000);
+      }
+    }
+
+    connection.onclose(async () => {
+      await start();
+    });
+
+    connection.on(
+      'ReceiveProxyData',
+      function (
+        requestId,
+        path,
+        statusCode,
+        handler,
+        requestData,
+        responseData
+      ) {
+        if (!path.hasValue || path.value === '') {
+          path = '/';
+        } else {
+          path = path.value.toString();
+        }
+        const item = {
+          requestId: requestId,
+          path: path,
+          statusCode: statusCode,
+          handler: {
+            method: handler.verb.method.toLowerCase(),
+            serverName: handler.remoteServer,
+            serverUrl: handler.remoteServerBaseUrl,
+            prefix: handler.prefix,
+            preferred: handler.preffered,
+            swaggerEndpoint: handler.swaggerEndpoint,
+            routes: handler.routes
+          },
+          request: {
+            headers: requestData.headers,
+            content: requestData.content
+          },
+          response: {
+            headers: responseData.headers,
+            content: responseData.content
+          }
+        };
+        setProxyData([...proxyData, item]);
+
+        addRequestRow(item);
+      }
+    );
+
+    // Start the connection.
+    start();
+  }, []);
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', flex: 1 },
+    { field: 'upstream', headerName: 'Upstream', flex: 5 },
+    { field: 'prefix', headerName: 'Prefix', flex: 5 },
+    { field: 'path', headerName: 'Path', flex: 30 },
+    { field: 'method', headerName: 'Method', flex: 2 },
+    { field: 'statusCode', headerName: 'Status', flex: 2 },
+    { field: 'preferred', headerName: 'Preferred', flex: 1 }
+  ];
+  return (
+    <DataGrid
+      columns={columns}
+      rows={requestRows}
+      autoHeight={true}
+      onSelectionModelChange={(ids) => {
+        const selectedIDs = new Set(ids);
+        const selectedRowData = proxyData.filter((row) =>
+          selectedIDs.has(row.requestId.toString())
+        );
+        if (setCurrentRequest && selectedRowData)
+          setCurrentRequest(selectedRowData[0]);
+      }}
+    />
+  );
+};

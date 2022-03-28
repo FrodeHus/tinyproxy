@@ -6,6 +6,7 @@ interface IProxyState {
   setCurrentRequest?: (request: ProxyData) => void;
 }
 const defaultState = {
+  requestId: -1,
   path: '',
   statusCode: 0,
   handler: {

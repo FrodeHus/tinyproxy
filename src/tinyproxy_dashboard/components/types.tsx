@@ -19,6 +19,7 @@ export type StaticRoute = {
 };
 
 export type ProxyData = {
+  requestId: number;
   handler: RouteHandler;
   path: string;
   statusCode: number;
