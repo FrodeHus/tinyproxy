@@ -18,7 +18,7 @@ type RequestRow = {
 export const RequestView: FunctionComponent = () => {
   const [requestRows, setRequestRows] = useState<RequestRow[]>([]);
   const [proxyData, setProxyData] = useState<ProxyData[]>([]);
-  const { setCurrentRequest } = useTinyContext();
+  const { setSelectedRequest } = useTinyContext();
   const addRequestRow = (data: ProxyData) =>
     setRequestRows((state) => [
       ...state,
@@ -134,14 +134,13 @@ export const RequestView: FunctionComponent = () => {
       columns={columns}
       rows={requestRows}
       autoHeight={true}
-      onSelectionModelChange={(ids) => {
+          onSelectionModelChange={(ids) => {
         const selectedIDs = new Set(ids);
         const selectedRowData = proxyData.filter((row) =>
-          selectedIDs.has(row.requestId.toString())
+          selectedIDs.has(row.requestId)
         );
-          if (setCurrentRequest && selectedRowData) {
-              console.log("set current request: " + selectedRowData[0].requestId);
-              setCurrentRequest(selectedRowData[0]);
+          if (setSelectedRequest && selectedRowData ) {
+              setSelectedRequest(selectedRowData[0]);
           }
       }}
     />

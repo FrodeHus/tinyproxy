@@ -17,7 +17,6 @@ import { Inspector } from '../components/inspector';
 import { RequestView } from '../components/requestlist';
 
 export default function Home() {
-  const { currentRequest, setCurrentRequest } = useTinyContext();
 
   return (
     <div>
