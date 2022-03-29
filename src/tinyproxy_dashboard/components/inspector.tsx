@@ -1,4 +1,11 @@
-import { Grid, Typography } from '@mui/material';
+import {
+  Grid,
+  Typography,
+  Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
+} from '@mui/material';
 import { FunctionComponent, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
 import { ContentDetails } from './contentdetails';
@@ -9,31 +16,39 @@ type InspectorProps = {};
 export const Inspector: FunctionComponent<InspectorProps> = () => {
   const { currentRequest } = useTinyContext();
 
-  if (!currentRequest) {
-    return <Typography>Select a request to inspect</Typography>;
-  }
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={6}>
-        <Typography component="h5" color="primary">
-          Request
-        </Typography>
-        <HeaderDetails headers={currentRequest.request.headers} />
-        <ContentDetails
-          content={currentRequest.request.content}
-          contentType={''}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <Typography component="h5" color="primary">
-          Response
-        </Typography>
-        <HeaderDetails headers={currentRequest.response.headers} />
-        <ContentDetails
-          content={currentRequest.response.content}
-          contentType={''}
-        />
-      </Grid>
-    </Grid>
+    <Box>
+      <Accordion>
+        <AccordionSummary>
+          <Typography>Request Attributes</Typography>
+        </AccordionSummary>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary>
+          <Typography>Request Query Parameters</Typography>
+        </AccordionSummary>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary>
+          <Typography>Request Body Parameters</Typography>
+        </AccordionSummary>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary>
+          <Typography>Request Headers</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <HeaderDetails headers={currentRequest.request.headers} />
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary>
+          <Typography>Response Headers</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <HeaderDetails headers={currentRequest.response.headers} />
+        </AccordionDetails>
+      </Accordion>
+    </Box>
   );
 };

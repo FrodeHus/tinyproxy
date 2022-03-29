@@ -8,8 +8,8 @@ import {
   Toolbar,
   Typography
 } from '@mui/material';
-import { Inspector } from '../components/inspector';
 import { RequestView } from '../components/requestlist';
+import { RequestEditor } from '../components/requesteditor';
 
 export default function Home() {
   return (
@@ -31,7 +31,7 @@ export default function Home() {
             </AppBar>
           </Box>
           <Box sx={{ padding: 2 }}>
-            <Inspector />
+            <RequestEditor />
             <RequestView />
           </Box>
         </div>

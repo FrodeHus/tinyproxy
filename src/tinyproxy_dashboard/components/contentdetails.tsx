@@ -3,6 +3,7 @@ import {
   FormControlLabel,
   Paper,
   Switch,
+  TextField,
   Typography
 } from '@mui/material';
 import React from 'react';
@@ -33,15 +34,18 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
 
   return (
     <Box sx={{ width: '95%' }}>
-      <Typography component="h6" color="secondary" gutterBottom>
-        Content
-      </Typography>
       <FormControlLabel
         control={<Switch checked={encoded} onChange={handleChange} />}
         label="Encoded"
       />
       <Box sx={{ overflowWrap: 'anywhere' }}>
-        <pre>{getContent(content, encoded)}</pre>
+        <TextField
+          multiline
+          rows={20}
+          maxRows={20}
+          fullWidth
+          value={getContent(content, encoded)}
+        />
       </Box>
     </Box>
   );
