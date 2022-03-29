@@ -20,6 +20,11 @@ export const Inspector: FunctionComponent<InspectorProps> = () => {
     <Box>
       <Accordion>
         <AccordionSummary>
+          <Typography>Upstream Handler</Typography>
+        </AccordionSummary>
+      </Accordion>{' '}
+      <Accordion>
+        <AccordionSummary>
           <Typography>Request Attributes</Typography>
         </AccordionSummary>
       </Accordion>
