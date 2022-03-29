@@ -25,15 +25,15 @@ const getContent = (str: string, encoded: boolean): string => {
   return decode(str);
 };
 
-
 export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
   const [encoded, setEncoded] = React.useState(true);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEncoded(event.target.checked);
   };
+
   return (
     <Box sx={{ width: '95%' }}>
-      <Typography component="h2" variant="h6" color="primary" gutterBottom>
+      <Typography component="h6" color="secondary" gutterBottom>
         Content
       </Typography>
       <FormControlLabel

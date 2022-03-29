@@ -18,22 +18,22 @@ type RequestRow = {
 export const RequestView: FunctionComponent = () => {
   const [requestRows, setRequestRows] = useState<RequestRow[]>([]);
   const [proxyData, setProxyData] = useState<ProxyData[]>([]);
-    const { setSelectedRequest } = useTinyContext();
-    const addRequestRow = (data: ProxyData) => {
-        setProxyData((state) => [...state, data]);
-        setRequestRows((state) => [
-            ...state,
-            {
-                id: data.requestId,
-                method: data.handler.method,
-                prefix: data.handler.prefix,
-                path: data.path,
-                statusCode: data.statusCode,
-                upstream: data.handler.serverName,
-                preferred: data.handler.preferred
-            }
-        ])
-    };
+  const { setSelectedRequest } = useTinyContext();
+  const addRequestRow = (data: ProxyData) => {
+    setProxyData((state) => [...state, data]);
+    setRequestRows((state) => [
+      ...state,
+      {
+        id: data.requestId,
+        method: data.handler.method,
+        prefix: data.handler.prefix,
+        path: data.path,
+        statusCode: data.statusCode,
+        upstream: data.handler.serverName,
+        preferred: data.handler.preferred
+      }
+    ]);
+  };
   useEffect(() => {
     const connection = new HubConnectionBuilder()
       .withUrl('http://localhost:5000/tinyproxy/hub')
@@ -112,7 +112,7 @@ export const RequestView: FunctionComponent = () => {
     {
       field: 'method',
       headerName: 'Method',
-      flex: 2,
+      flex: 3,
       renderCell: (cellValues) => {
         return (
           <Chip variant="outlined" label={cellValues['value'].toUpperCase()} />
@@ -122,7 +122,7 @@ export const RequestView: FunctionComponent = () => {
     {
       field: 'statusCode',
       headerName: 'Status',
-      flex: 2,
+      flex: 3,
       renderCell: (cellValues) => {
         const statusCode = cellValues['value'];
         const statusClass =

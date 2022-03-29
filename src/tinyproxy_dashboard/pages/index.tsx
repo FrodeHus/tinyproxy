@@ -12,7 +12,6 @@ import { Inspector } from '../components/inspector';
 import { RequestView } from '../components/requestlist';
 
 export default function Home() {
-
   return (
     <div>
       <Head>
@@ -31,17 +30,8 @@ export default function Home() {
               </Toolbar>
             </AppBar>
           </Box>
-          <Box>
-            <Accordion>
-              <AccordionSummary id="inspector-header">
-                <Typography>Request inspector</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Inspector />
-              </AccordionDetails>
-            </Accordion>
-          </Box>
           <Box sx={{ padding: 2 }}>
+            <Inspector />
             <RequestView />
           </Box>
         </div>
