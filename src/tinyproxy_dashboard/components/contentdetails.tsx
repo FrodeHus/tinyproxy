@@ -42,7 +42,6 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
         <TextField
           multiline
           rows={20}
-          maxRows={20}
           fullWidth
           value={getContent(content, encoded)}
         />
