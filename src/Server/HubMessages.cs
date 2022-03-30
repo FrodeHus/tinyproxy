@@ -26,6 +26,8 @@ public class HubMessages
         {
             var request = new Request{
                 Id = _requestIndex++,
+                Path = httpContext.Request.Path,
+                Method = httpContext.Request.Method.ToUpperInvariant(),                
                 TraceIdentifier = httpContext.TraceIdentifier,
                 RequestHeaders = httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
                 ResponseHeaders = httpContext.Response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),

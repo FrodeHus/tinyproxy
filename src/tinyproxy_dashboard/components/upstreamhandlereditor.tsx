@@ -22,17 +22,24 @@ export const UpstreamHandlerEditor: FunctionComponent<
     <Stack spacing={2}>
       <TextField
         label="Name"
-        value={handler.serverName}
+        value={handler.remoteServer}
         disabled={!isEditing}
       />
       <TextField
         label="Upstream URL"
-        value={handler.serverUrl}
+        value={handler.remoteServerBaseUrl}
         disabled={!isEditing}
       />
       <TextField
+        hidden={!handler.swaggerEndpoint}
         label="Swagger Endpoint"
         value={handler.swaggerEndpoint}
+        disabled={!isEditing}
+      />
+      <TextField
+        hidden={!handler.relativePath}
+        label="Swagger Endpoint"
+        value={handler.relativePath}
         disabled={!isEditing}
       />
       <TextField label="Prefix" value={handler.prefix} disabled={!isEditing} />

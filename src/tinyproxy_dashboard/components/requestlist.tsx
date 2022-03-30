@@ -18,7 +18,7 @@ type RequestRow = {
 export const RequestView: FunctionComponent = () => {
   const [requestRows, setRequestRows] = useState<RequestRow[]>([]);
   const [requestData, setRequestData] = useState<Request[]>([]);
-  const { setSelectedRequest } = useTinyContext();
+  const { setSelectedRequest, hubConnection } = useTinyContext();
   const addRequestRow = (data: Request) => {
     setRequestData((state) => [...state, data]);
     setRequestRows((state) => [
@@ -29,37 +29,18 @@ export const RequestView: FunctionComponent = () => {
         prefix: data.handler.prefix,
         path: data.path,
         statusCode: data.statusCode,
-        upstream: data.handler.serverName,
+        upstream: data.handler.remoteServer,
         preferred: data.handler.preferred
       }
     ]);
   };
+
   useEffect(() => {
-    const connection = new HubConnectionBuilder()
-      .withUrl('http://localhost:5000/tinyproxy/hub')
-      .configureLogging(LogLevel.Information)
-      .build();
-
-    async function start() {
-      try {
-        await connection.start();
-        console.log('SignalR Connected.');
-      } catch (err) {
-        console.log(err);
-        setTimeout(start, 5000);
-      }
-    }
-
-    connection.onclose(async () => {
-      await start();
-    });
-
-    connection.on('ReceiveRequest', function (request: Request) {
+    if (!hubConnection) return;
+    hubConnection.on('ReceiveRequest', function (request: Request) {
+      console.log(request);
       addRequestRow(request);
     });
-
-    // Start the connection.
-    start();
   }, []);
 
   const columns: GridColDef[] = [
@@ -77,9 +58,7 @@ export const RequestView: FunctionComponent = () => {
       headerName: 'Method',
       flex: 3,
       renderCell: (cellValues) => {
-        return (
-          <Chip variant="outlined" label={cellValues['value'].toUpperCase()} />
-        );
+        return <Chip variant="outlined" label={cellValues['value']} />;
       }
     },
     {

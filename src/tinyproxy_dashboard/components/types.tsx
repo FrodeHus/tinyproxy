@@ -14,11 +14,12 @@ export type Request = {
 };
 
 export type RouteHandler = {
-  method: string;
-  serverName: string;
-  serverUrl: string;
+  verb: string;
+  remoteServer: string;
+  remoteServerBaseUrl: string;
   prefix: string;
   swaggerEndpoint?: string;
+  relativePath?: string;
   preferred: boolean;
   routes?: StaticRoute[];
 };

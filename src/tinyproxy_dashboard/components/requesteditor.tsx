@@ -5,7 +5,7 @@ import { ContentDetails } from './contentdetails';
 import { Inspector } from './inspector';
 
 export const RequestEditor: FunctionComponent = () => {
-  const { currentRequest } = useTinyContext();
+  const { currentRequest, hubConnection } = useTinyContext();
 
   return (
     <Grid container spacing={2}>
@@ -13,19 +13,13 @@ export const RequestEditor: FunctionComponent = () => {
         <Typography component="h5" color="primary">
           Request
         </Typography>
-        <ContentDetails
-          content={currentRequest.request.content}
-          contentType={''}
-        />
+        <ContentDetails content={''} contentType={''} />
       </Grid>
       <Grid item xs={4}>
         <Typography component="h5" color="primary">
           Response
         </Typography>
-        <ContentDetails
-          content={currentRequest.response.content}
-          contentType={''}
-        />
+        <ContentDetails content={''} contentType={''} />
       </Grid>
       <Grid item xs={4}>
         <Inspector />

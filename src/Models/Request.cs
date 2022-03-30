@@ -4,7 +4,7 @@ public class Request{
     public int Id{get;set;}
     public string? TraceIdentifier { get; set; }
     public string Path { get; set; } = null!;
-    public HttpMethod? Method { get; set; } = null!;
+    public string? Method { get; set; } = null!;
     public Dictionary<string,string>? RequestHeaders { get; set; } 
     public Dictionary<string,string>? ResponseHeaders { get; set; } 
     public string? RequestContentId { get; set; } = null!;
