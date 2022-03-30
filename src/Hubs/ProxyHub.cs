@@ -12,8 +12,11 @@ public class ProxyHub : Hub<IProxyClient>
         _cache = cache;
     }
 
-    public Task SendContent(string contentId){
+    public Task<string> GetContent(string contentId){
+        if(string.IsNullOrEmpty(contentId)){
+            return Task.FromResult("contentId was null");
+        }
         var content = _cache.Get<string>(contentId);
-        return Clients.Caller.ReceiveContent(contentId, content);
+        return Task.FromResult(content);
     }
 }

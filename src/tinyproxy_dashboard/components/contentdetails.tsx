@@ -1,16 +1,10 @@
-import {
-  Box,
-  FormControlLabel,
-  Paper,
-  Switch,
-  TextField,
-  Typography
-} from '@mui/material';
-import React from 'react';
+import { Box, FormControlLabel, Switch, TextField } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useTinyContext } from '../context/tinycontext';
 
 type ContentDetailsProps = {
-  content: string;
-  contentType: string;
+  contentId: string;
+  contentLength: number;
 };
 
 const decode = (str: string): string =>
@@ -26,11 +20,29 @@ const getContent = (str: string, encoded: boolean): string => {
   return decode(str);
 };
 
-export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
-  const [encoded, setEncoded] = React.useState(true);
+export const ContentDetails: React.FC<ContentDetailsProps> = ({
+  contentId,
+  contentLength
+}) => {
+  const [encoded, setEncoded] = useState(true);
+  const [content, setContent] = useState('');
+  const { hubConnection } = useTinyContext();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEncoded(event.target.checked);
   };
+
+  useEffect(() => {
+    if (contentId && hubConnection?.state === 'Connected') {
+      hubConnection
+        .invoke('GetContent', contentId)
+        .then((loadedContent: string) => {
+          setContent(loadedContent);
+        })
+        .catch((reason: any) => {
+          console.log(reason);
+        });
+    }
+  }, [contentId]);
 
   return (
     <Box sx={{ width: '95%' }}>

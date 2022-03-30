@@ -38,10 +38,9 @@ export const RequestView: FunctionComponent = () => {
   useEffect(() => {
     if (!hubConnection) return;
     hubConnection.on('ReceiveRequest', function (request: Request) {
-      console.log(request);
       addRequestRow(request);
     });
-  }, []);
+  }, [hubConnection]);
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', flex: 1 },

@@ -43,32 +43,26 @@ export const TinyContextProvider: FunctionComponent = ({ children }) => {
   const [currentRequest, setCurrentRequest] = useState(
     defaultState.currentRequest
   );
+  const [hubConnection, setHubConnection] = useState<HubConnection>();
   const setSelectedRequest = (request: Request) => {
     setCurrentRequest(request);
   };
 
-  const hubConnection = new HubConnectionBuilder()
-    .withUrl('http://localhost:5000/tinyproxy/hub')
-    .configureLogging(LogLevel.Information)
-    .build();
+  useEffect(() => {
+    if (hubConnection) return;
+    const connection = new HubConnectionBuilder()
+      .withUrl('http://localhost:5000/tinyproxy/hub')
+      .configureLogging(LogLevel.Information)
+      .withAutomaticReconnect()
+      .build();
+    setHubConnection(connection);
+  }, [hubConnection]);
 
   useEffect(() => {
-    async function start() {
-      try {
-        await hubConnection.start();
-        console.log('SignalR Connected.');
-      } catch (err) {
-        console.log(err);
-        setTimeout(start, 5000);
-      }
+    if (hubConnection) {
+      hubConnection.start();
     }
-
-    hubConnection.onclose(async () => {
-      await start();
-    });
-
-    start();
-  }, []);
+  }, [hubConnection]);
 
   return (
     <TinyContext.Provider
