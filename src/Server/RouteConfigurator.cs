@@ -1,6 +1,6 @@
 using System.Net;
 using Spectre.Console;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace TinyProxy.Server;
@@ -16,7 +16,7 @@ public class RouteConfigurator
         _logger = logger;
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<ProxyRoute> routes, Action<HttpContext, ProxyRoute>? requestHandler = null)
+    public void MapEndpoints(IEndpointRouteBuilder routeBuilder, List<UpstreamHandler> routes, Action<HttpContext, UpstreamHandler>? requestHandler = null)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
@@ -74,21 +74,21 @@ public class RouteConfigurator
         });
     }
 
-    private static string GetPrefixedPath(ProxyRoute route)
+    private static string GetPrefixedPath(UpstreamHandler route)
     {
         return string.Join("/", route.Prefix.TrimEnd('/'), route.RelativePath.TrimStart('/'));
     }
 
-    private static bool TryFindHandler(IEnumerable<ProxyRoute> allHandlers, string path, string verb,
-        out ProxyRoute handler)
+    private static bool TryFindHandler(IEnumerable<UpstreamHandler> allHandlers, string path, string verb,
+        out UpstreamHandler handler)
     {
         var handlers = allHandlers.Where(
             h => (h.Verb?.ToString() == verb || verb == HttpMethod.Options.ToString()) &&
                  path == GetPrefixedPath(h)).ToList();
-        if (!handlers.Any())
+        if (handlers.Count == 0)
         {
             AnsiConsole.MarkupLine($"[red]Handler for {path} was not found[/]");
-            handler = new ProxyRoute();
+            handler = new UpstreamHandler();
             return false;
         }
 
@@ -106,7 +106,7 @@ public class RouteConfigurator
                 $"[cyan1]INFO[/] Too many handlers exist for [yellow]{verb} {path}[/] - using first one found");
         }
 
-        handler = handlers.First();
+        handler = handlers[0];
         return true;
     }
 }

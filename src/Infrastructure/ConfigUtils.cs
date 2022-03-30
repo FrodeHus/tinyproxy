@@ -1,7 +1,7 @@
 using System.Text.Json;
 using TinyProxy.Server;
 
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 public static class ConfigUtils
 {

@@ -2,7 +2,7 @@ using System.Reflection.Emit;
 using System.Text.Json;
 using Spectre.Console;
 
-namespace TinyProxy.Infrastructure.OutputFormat;
+namespace TinyProxy.Models.OutputFormat;
 
 public class JsonFormatter : IOutputFormatter
 {

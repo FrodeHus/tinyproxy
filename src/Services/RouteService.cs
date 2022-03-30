@@ -1,7 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using Spectre.Console;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 
 namespace TinyProxy.Services;
 
@@ -47,33 +47,33 @@ public class RouteService
         }
     }
 
-    private IEnumerable<ProxyRoute> GetStaticRoutes(UpstreamServer server)
+    private IEnumerable<UpstreamHandler> GetStaticRoutes(UpstreamServer server)
     {
         return server.Routes.SelectMany(r =>
         {
-            return r.HttpMethods.Select(method => new ProxyRoute
+            return r.HttpMethods.Select(method => new UpstreamHandler
             {
                 RelativePath = r.RelativePath, 
                 Prefix = server.Prefix, 
                 RemoteServer = server.Name,
                 RemoteServerBaseUrl = server.Url.ToString(), 
-                Verb = ConvertToHttpMethod(method)
+                Verb = method
             });
         }).ToList();
     }
 
-    public List<ProxyRoute> GetAggregatedProxyRoutes()
+    public List<UpstreamHandler> GetAggregatedProxyRoutes()
     {
-        var endpoints = new List<ProxyRoute>();
+        var endpoints = new List<UpstreamHandler>();
         foreach (var server in _apis.Keys)
         {
             var normalizedPaths = GetNormalizedPathsForServer(server);
             var routes = normalizedPaths.SelectMany(kvp =>
             {
                 return kvp.Value.Select(path =>
-                    new ProxyRoute
+                    new UpstreamHandler
                     {
-                        Verb = kvp.Key,
+                        Verb = kvp.Key.ToString(),
                         Prefix = server.Prefix,
                         RemoteServerBaseUrl = server.Url.ToString(),
                         RelativePath = path,
@@ -90,20 +90,6 @@ public class RouteService
         }
 
         return endpoints;
-    }
-
-    private HttpMethod ConvertToHttpMethod(string verb)
-    {
-        return verb.ToUpper() switch
-        {
-            "GET" => HttpMethod.Get,
-            "PUT" => HttpMethod.Put,
-            "POST" => HttpMethod.Post,
-            "DELETE" => HttpMethod.Delete,
-            "OPTIONS" => HttpMethod.Options,
-            "PATCH" => HttpMethod.Patch,
-            _ => throw new ArgumentOutOfRangeException()
-        };
     }
 
     private Dictionary<HttpMethod, List<string>> GetNormalizedPathsForServer(UpstreamServer server)

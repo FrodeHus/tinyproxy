@@ -1,4 +1,4 @@
-namespace TinyProxy.Infrastructure.OutputFormat;
+namespace TinyProxy.Models.OutputFormat;
 
 public interface IOutputFormatter
 {

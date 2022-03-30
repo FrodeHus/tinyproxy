@@ -1,6 +1,6 @@
 using Spectre.Console.Cli;
 
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 public class TypeResolver : ITypeResolver
 {

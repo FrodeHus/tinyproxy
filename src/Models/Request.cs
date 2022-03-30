@@ -1,4 +1,4 @@
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 
 public class Request{
     public int Id{get;set;}
@@ -11,6 +11,6 @@ public class Request{
     public long? RequestContentLength{get;set;}
     public string? ResponseContentId { get; set; } = null!;
     public long? ResponseContentLength{get;set;}
-    public ProxyRoute? Handler { get; set; }
+    public UpstreamHandler? Handler { get; set; }
     public int StatusCode {get;set;}
 }

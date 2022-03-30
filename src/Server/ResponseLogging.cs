@@ -1,6 +1,6 @@
 using System.Text;
 using Spectre.Console;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 using TinyProxy.UI;
 using System;
 using TinyProxy.UI.CommandLine;

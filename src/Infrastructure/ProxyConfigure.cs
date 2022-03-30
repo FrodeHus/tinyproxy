@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 [Verb("configure", HelpText = "Configure proxy")]
 public class ProxyConfigure

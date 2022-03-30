@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 
 namespace TinyProxy.Server;
 

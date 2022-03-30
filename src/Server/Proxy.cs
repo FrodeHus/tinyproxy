@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Prometheus;
 using TinyProxy.Hubs;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 using TinyProxy.UI.CommandLine;
 using TinyProxy.UI.Web;
-using TinyProxy.Server;
 
 namespace TinyProxy.Server;
 
@@ -19,7 +18,7 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false,
+    public void Configure(List<UpstreamHandler> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false,
         int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();

@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Caching.Memory;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 namespace TinyProxy.Server;
 
 public class ResponseRewriter
@@ -30,7 +30,7 @@ public class ResponseRewriter
         }
         var contentBytes = Convert.FromBase64String(encodedContent);
         var content = Encoding.UTF8.GetString(contentBytes);
-        if (httpContext.Items["handler"] is ProxyRoute handler && !string.IsNullOrEmpty(handler.Prefix) && Regex.IsMatch(content, @"(href|src)=[""'](\/)[^\w""]*", RegexOptions.IgnoreCase))
+        if (httpContext.Items["handler"] is UpstreamHandler handler && !string.IsNullOrEmpty(handler.Prefix) && Regex.IsMatch(content, @"(href|src)=[""'](\/)[^\w""]*", RegexOptions.IgnoreCase))
         {
             content = Regex.Replace(content, @"(href|src)=[""'](\/)[^\w""]*", @$"href=""{handler.Prefix}/");
             httpContext.Response.Body.Seek(0, SeekOrigin.Begin);

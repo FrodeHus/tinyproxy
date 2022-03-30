@@ -3,9 +3,13 @@ import {
   FormControlLabel,
   FormGroup,
   FormLabel,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Switch,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import { FunctionComponent, useState } from 'react';
 import { RouteHandler } from './types';
@@ -18,6 +22,14 @@ export const UpstreamHandlerEditor: FunctionComponent<
   UpstreamHandlerEditorProps
 > = ({ handler }) => {
   const [isEditing, setIsEditing] = useState(false);
+
+  if (!handler) {
+    return (
+      <Typography color="warning">
+        No handler defined for this request
+      </Typography>
+    );
+  }
   return (
     <Stack spacing={2}>
       <TextField
@@ -30,53 +42,36 @@ export const UpstreamHandlerEditor: FunctionComponent<
         value={handler.remoteServerBaseUrl}
         disabled={!isEditing}
       />
-      <TextField
-        hidden={!handler.swaggerEndpoint}
-        label="Swagger Endpoint"
-        value={handler.swaggerEndpoint}
-        disabled={!isEditing}
-      />
+      {handler.swaggerEndpoint && (
+        <TextField
+          label="Swagger Endpoint"
+          value={handler.swaggerEndpoint}
+          disabled={!isEditing}
+        />
+      )}
       <TextField
         hidden={!handler.relativePath}
-        label="Swagger Endpoint"
+        label="Path"
         value={handler.relativePath}
         disabled={!isEditing}
       />
       <TextField label="Prefix" value={handler.prefix} disabled={!isEditing} />
-      <FormControl component="fieldset">
-        <FormLabel component="legend">HTTP methods</FormLabel>
-        <FormGroup>
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="get" />}
-            label="GET"
-          />
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="post" />}
-            label="POST"
-          />
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="put" />}
-            label="PUT"
-          />
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="delete" />}
-            label="DELETE"
-          />
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="patch" />}
-            label="PATCH"
-          />
-          <FormControlLabel
-            disabled={!isEditing}
-            control={<Switch name="options" />}
-            label="OPTIONS"
-          />
-        </FormGroup>
+      <FormControl fullWidth>
+        <InputLabel id='handler-http-method'>Method</InputLabel>
+        <Select
+          labelId="handler-http-method"
+          id="handler-http-method-select"
+          value={handler.verb}
+          label={handler.verb}
+          disabled={!isEditing}
+        >
+          <MenuItem value="GET">GET</MenuItem>
+          <MenuItem value="PUT">PUT</MenuItem>
+          <MenuItem value="POST">POST</MenuItem>
+          <MenuItem value="PATCH">PATCH</MenuItem>
+          <MenuItem value="DELETE">DELETE</MenuItem>
+          <MenuItem value="OPTIONS">OPTIONS</MenuItem>
+        </Select>
       </FormControl>
     </Stack>
   );

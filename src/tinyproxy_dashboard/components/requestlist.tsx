@@ -26,11 +26,11 @@ export const RequestView: FunctionComponent = () => {
       {
         id: data.id,
         method: data.method,
-        prefix: data.handler.prefix,
+        prefix: data.handler?.prefix,
         path: data.path,
         statusCode: data.statusCode,
-        upstream: data.handler.remoteServer,
-        preferred: data.handler.preferred
+        upstream: data.handler?.remoteServer,
+        preferred: data.handler?.preferred
       }
     ]);
   };
