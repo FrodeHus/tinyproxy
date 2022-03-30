@@ -39,7 +39,7 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEncoded(event.target.checked);
   };
-  const maxAutoDownloadSize = 16 * 1024;
+  const maxAutoDownloadSize = 64 * 1024;
   const manuallyFetch = () => {
     setDownloadLargeContent(true);
     if (!hubConnection || hubConnection?.state !== 'Connected') return;
@@ -68,7 +68,7 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
   if (contentLength > maxAutoDownloadSize && !downloadLargeContent) {
     return (
       <Box>
-        <Typography>Content is {contentLength / 1024}kB</Typography>
+        <Typography>Content is {Math.round(contentLength / 1024)}kB</Typography>
         <Button variant="contained" endIcon={<Download />} onClick={manuallyFetch}>
           Fetch content
         </Button>
