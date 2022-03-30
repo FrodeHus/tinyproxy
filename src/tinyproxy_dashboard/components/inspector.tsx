@@ -1,13 +1,4 @@
-import {
-  Grid,
-  Typography,
-  Box,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Tabs,
-  Tab
-} from '@mui/material';
+import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { FunctionComponent, ReactNode, SyntheticEvent, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
 import { ContentDetails } from './contentdetails';
@@ -64,10 +55,10 @@ export const Inspector: FunctionComponent<InspectorProps> = () => {
         <UpstreamHandlerEditor handler={currentRequest.handler} />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <HeaderDetails headers={currentRequest.request.headers} />
+        <HeaderDetails headers={currentRequest.requestHeaders} />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <HeaderDetails headers={currentRequest.response.headers} />
+        <HeaderDetails headers={currentRequest.responseHeaders} />
       </TabPanel>
     </Box>
   );

@@ -1,6 +1,16 @@
-export type RequestData = {
-  headers: {};
-  content: string;
+export type Request = {
+  id: number;
+  traceIdentifier?: string;
+  path: string;
+  method: string;
+  requestHeaders: {};
+  responseHeaders: {};
+  requestContentId?: string;
+  requestContentLength?: number;
+  responseContentId?: string;
+  responseContentLength?: number;
+  handler: RouteHandler;
+  statusCode: number;
 };
 
 export type RouteHandler = {
@@ -16,13 +26,4 @@ export type RouteHandler = {
 export type StaticRoute = {
   relativePath: string;
   httpMethods: string[];
-};
-
-export type ProxyData = {
-  requestId: number;
-  handler: RouteHandler;
-  path: string;
-  statusCode: number;
-  request: RequestData;
-  response: RequestData;
 };

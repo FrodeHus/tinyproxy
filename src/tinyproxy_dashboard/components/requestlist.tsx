@@ -1,9 +1,9 @@
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Chip } from '@mui/material';
-import { DataGrid, GridColDef, MuiEvent } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { FunctionComponent, useEffect, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
-import { ProxyData } from './types';
+import { Request } from './types';
 
 type RequestRow = {
   id: number;
@@ -17,15 +17,15 @@ type RequestRow = {
 
 export const RequestView: FunctionComponent = () => {
   const [requestRows, setRequestRows] = useState<RequestRow[]>([]);
-  const [proxyData, setProxyData] = useState<ProxyData[]>([]);
+  const [requestData, setRequestData] = useState<Request[]>([]);
   const { setSelectedRequest } = useTinyContext();
-  const addRequestRow = (data: ProxyData) => {
-    setProxyData((state) => [...state, data]);
+  const addRequestRow = (data: Request) => {
+    setRequestData((state) => [...state, data]);
     setRequestRows((state) => [
       ...state,
       {
-        id: data.requestId,
-        method: data.handler.method,
+        id: data.id,
+        method: data.method,
         prefix: data.handler.prefix,
         path: data.path,
         statusCode: data.statusCode,
@@ -54,46 +54,9 @@ export const RequestView: FunctionComponent = () => {
       await start();
     });
 
-    connection.on(
-      'ReceiveProxyData',
-      function (
-        requestId,
-        path,
-        statusCode,
-        handler,
-        requestData,
-        responseData
-      ) {
-        if (!path.hasValue || path.value === '') {
-          path = '/';
-        } else {
-          path = path.value.toString();
-        }
-        const item = {
-          requestId: requestId,
-          path: path,
-          statusCode: statusCode,
-          handler: {
-            method: handler.verb.method.toLowerCase(),
-            serverName: handler.remoteServer,
-            serverUrl: handler.remoteServerBaseUrl,
-            prefix: handler.prefix,
-            preferred: handler.preffered,
-            swaggerEndpoint: handler.swaggerEndpoint,
-            routes: handler.routes
-          },
-          request: {
-            headers: requestData.headers,
-            content: requestData.content
-          },
-          response: {
-            headers: responseData.headers,
-            content: responseData.content
-          }
-        };
-        addRequestRow(item);
-      }
-    );
+    connection.on('ReceiveRequest', function (request: Request) {
+      addRequestRow(request);
+    });
 
     // Start the connection.
     start();
@@ -142,8 +105,8 @@ export const RequestView: FunctionComponent = () => {
       onSelectionModelChange={(ids) => {
         const selectedIDs = new Set(ids);
 
-        const selectedRowData = proxyData.filter((row) =>
-          selectedIDs.has(row.requestId)
+        const selectedRowData = requestData.filter((row) =>
+          selectedIDs.has(row.id)
         );
         if (setSelectedRequest && selectedRowData) {
           setSelectedRequest(selectedRowData[0]);

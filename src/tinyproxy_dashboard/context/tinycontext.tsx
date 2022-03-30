@@ -1,14 +1,17 @@
 import { createContext, FunctionComponent, useContext, useState } from 'react';
-import { ProxyData } from '../components/types';
+import { Request } from '../components/types';
 
 interface IProxyState {
-  currentRequest: ProxyData;
-  setSelectedRequest?: (request: ProxyData) => void;
+  currentRequest: Request;
+  setSelectedRequest?: (request: Request) => void;
 }
 const defaultState: IProxyState = {
   currentRequest: {
-    requestId: -1,
+    id: -1,
     path: '',
+    method: 'GET',
+    requestHeaders: {},
+    responseHeaders: {},
     statusCode: 0,
     handler: {
       method: '',
@@ -18,14 +21,6 @@ const defaultState: IProxyState = {
       preferred: false,
       swaggerEndpoint: '',
       routes: []
-    },
-    request: {
-      headers: {},
-      content: ''
-    },
-    response: {
-      headers: [],
-      content: ''
     }
   }
 };
@@ -33,10 +28,12 @@ const defaultState: IProxyState = {
 export const TinyContext = createContext<IProxyState>(defaultState);
 export const useTinyContext = () => useContext(TinyContext);
 export const TinyContextProvider: FunctionComponent = ({ children }) => {
-  const [currentRequest, setCurrentRequest] = useState(defaultState.currentRequest)
-  const setSelectedRequest = (request: ProxyData) => {
+  const [currentRequest, setCurrentRequest] = useState(
+    defaultState.currentRequest
+  );
+  const setSelectedRequest = (request: Request) => {
     setCurrentRequest(request);
-  }
+  };
   return (
     <TinyContext.Provider value={{ currentRequest, setSelectedRequest }}>
       {children}
