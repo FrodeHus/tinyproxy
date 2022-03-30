@@ -1,20 +1,18 @@
-using System.Text;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using TinyProxy.Hubs;
 using TinyProxy.Infrastructure;
-using TinyProxy.Models;
 
 namespace TinyProxy.Server;
 
 public class HubMessages
 {
     private readonly RequestDelegate _requestDelegate;
-    private readonly IHubContext<ProxyHub> _hub;
+    private readonly IHubContext<ProxyHub, IProxyClient> _hub;
     private readonly IMemoryCache _cache;
     private int _requestIndex = 0;
 
-    public HubMessages(RequestDelegate requestDelegate, IHubContext<ProxyHub> hub, IMemoryCache cache)
+    public HubMessages(RequestDelegate requestDelegate, IHubContext<ProxyHub, IProxyClient> hub, IMemoryCache cache)
     {
         _requestDelegate = requestDelegate;
         _hub = hub;
@@ -26,20 +24,19 @@ public class HubMessages
         await _requestDelegate(httpContext);
         if (httpContext.Items["handler"] is ProxyRoute handler)
         {
-            _requestIndex++;
-            var request =
-                new ProxyData(httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()), ProxyDataType.Request);
-            if (httpContext.Request.ContentLength > 0 && httpContext.Items["request"] is string requestCacheId)
-            {
-                request.Content = (string)_cache.Get(requestCacheId);
-            }
-            var response = new ProxyData(httpContext.Response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()), ProxyDataType.Response);
-            if (httpContext.Items["response"] is string responseCacheId)
-            {
-                response.Content = (string)_cache.Get(responseCacheId);
-            }
-            await _hub.Clients.All.SendAsync("ReceiveProxyData", _requestIndex, httpContext.Request.Path, httpContext.Response.StatusCode, handler, request, response);
+            var request = new Request{
+                Id = _requestIndex++,
+                TraceIdentifier = httpContext.TraceIdentifier,
+                RequestHeaders = httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+                ResponseHeaders = httpContext.Response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
+                RequestContentId = httpContext.Items["request"] is string requestCacheId ? requestCacheId : null,
+                RequestContentLength = httpContext.Request.ContentLength,
+                ResponseContentId = httpContext.Items["response"] is string responseCacheId ? responseCacheId : null,
+                ResponseContentLength = httpContext.Response.ContentLength,
+                Handler = handler,
+                StatusCode = httpContext.Response.StatusCode
+            };
+            await _hub.Clients.All.ReceiveRequest(request);
         }
     }
-
 }
