@@ -45,6 +45,7 @@ public class RequestIntercept
             var encodedContent = Convert.ToBase64String(reader.ToArray());
             var cacheId = Guid.NewGuid().ToString();
             httpContext.Items.Add("request", cacheId);
+            httpContext.Items.Add("requestLength", encodedContent.Length);
             _cache.Set(cacheId, encodedContent);
             httpContext.Request.Body.Position = 0;
         }
@@ -58,6 +59,7 @@ public class RequestIntercept
         var encodedContent = Convert.ToBase64String(reader.ToArray());
         var cacheId = Guid.NewGuid().ToString();
         httpContext.Items.Add("response", cacheId);
-        _cache.Set(cacheId, encodedContent, TimeSpan.FromSeconds(30));
+        httpContext.Items.Add("responseLength", encodedContent.Length);
+        _cache.Set(cacheId, encodedContent);
     }
 }

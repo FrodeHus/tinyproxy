@@ -30,9 +30,9 @@ public class HubMessages
             RequestHeaders = httpContext.Request.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
             ResponseHeaders = httpContext.Response.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString()),
             RequestContentId = httpContext.Items["request"] is string requestCacheId ? requestCacheId : null,
-            RequestContentLength = httpContext.Request.ContentLength,
+            RequestContentLength = httpContext.Items["requestLength"] is int requestContentLength ? requestContentLength : 0,
             ResponseContentId = httpContext.Items["response"] is string responseCacheId ? responseCacheId : null,
-            ResponseContentLength = httpContext.Response.ContentLength,
+            ResponseContentLength = httpContext.Items["responseLength"] is int responseContentLength ? responseContentLength : 0,
             StatusCode = httpContext.Response.StatusCode
         };
         if (httpContext.Items["handler"] is UpstreamHandler handler)

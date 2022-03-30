@@ -1,4 +1,12 @@
-import { Box, FormControlLabel, Switch, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  Switch,
+  TextField,
+  Typography
+} from '@mui/material';
+import { Download } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
 
@@ -26,13 +34,26 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
 }) => {
   const [encoded, setEncoded] = useState(true);
   const [content, setContent] = useState('');
+  const [downloadLargeContent, setDownloadLargeContent] = useState(false);
   const { hubConnection } = useTinyContext();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEncoded(event.target.checked);
   };
-
+  const maxAutoDownloadSize = 16 * 1024;
+  const manuallyFetch = () => {
+    setDownloadLargeContent(true);
+    if (!hubConnection || hubConnection?.state !== 'Connected') return;
+    hubConnection
+        .invoke('GetContent', contentId)
+        .then((loadedContent: string) => {
+          setContent(loadedContent);
+        })
+        .catch((reason: any) => {
+          console.log(reason);
+        });
+  }
   useEffect(() => {
-    if (contentId && hubConnection?.state === 'Connected') {
+    if (contentId && hubConnection?.state === 'Connected' && (contentLength < maxAutoDownloadSize || downloadLargeContent)) {
       hubConnection
         .invoke('GetContent', contentId)
         .then((loadedContent: string) => {
@@ -43,6 +64,17 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
         });
     }
   }, [contentId]);
+
+  if (contentLength > maxAutoDownloadSize && !downloadLargeContent) {
+    return (
+      <Box>
+        <Typography>Content is {contentLength / 1024}kB</Typography>
+        <Button variant="contained" endIcon={<Download />} onClick={manuallyFetch}>
+          Fetch content
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '95%' }}>
