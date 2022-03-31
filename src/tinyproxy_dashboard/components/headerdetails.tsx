@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+import { Request } from './types';
 import {
   Table,
   TableBody,
@@ -7,8 +8,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Box
+  Box,
+  IconButton,
+  Typography
 } from '@mui/material';
+import { Search } from '@mui/icons-material';
+import { JwtInspector } from './jwtinspector';
 
 type HeaderDetailsProps = {
   headers: { [key: string]: string };
@@ -21,6 +26,25 @@ export const HeaderDetails: FunctionComponent<HeaderDetailsProps> = ({
     name: k,
     value: headers[k]
   }));
+
+  const getVisualizer = (headerName: string, headerValue: string) => {
+    switch (headerName.toLowerCase()) {
+      case 'authorization':
+        return (
+          <Box>
+            <JwtInspector jwtToken={headerValue} />
+            {/* <Typography className="content">{headerValue}</Typography>
+            <IconButton>
+              <Search />
+            </IconButton> */}
+          </Box>
+        );
+        break;
+
+      default:
+        return <Typography className="header-value">{headerValue}</Typography>;
+    }
+  };
   return (
     <TableContainer component={Paper}>
       <Table size="small">
@@ -33,9 +57,9 @@ export const HeaderDetails: FunctionComponent<HeaderDetailsProps> = ({
         <TableBody>
           {headerRows.map((h) => (
             <TableRow key={h.name}>
-              <TableCell align="left">{h.name}</TableCell>
+              <TableCell align="left">{h.name} </TableCell>
               <TableCell align="left" className="header-value">
-                {h.value}
+                {getVisualizer(h.name, h.value)}
               </TableCell>
             </TableRow>
           ))}
