@@ -1,14 +1,11 @@
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import {
   Badge,
-  Chip,
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText
 } from '@mui/material';
-import { selectedGridRowsSelector } from '@mui/x-data-grid';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
 import { Request } from './types';
@@ -36,6 +33,10 @@ export const RequestView: FunctionComponent = () => {
     });
   }, [hubConnection]);
 
+  const statusCodeColor = (req: Request) => {
+    return req.statusCode < 400 ? 'success' : 'error';
+  };
+
   return (
     <List>
       {requestData.map((req) => {
@@ -48,13 +49,22 @@ export const RequestView: FunctionComponent = () => {
               <Badge
                 badgeContent={req.statusCode}
                 max={1000}
-                color="success"
+                color={statusCodeColor(req)}
                 anchorOrigin={{
                   horizontal: 'left',
                   vertical: 'top'
                 }}
               >
-                <ListItemText primary={req.path} secondary={req.method} />
+                <ListItemText
+                  primary={req.path}
+                  secondary={
+                    req.method +
+                    ' ' +
+                    (req.handler
+                      ? req.handler.remoteServerBaseUrl
+                      : 'no upstream')
+                  }
+                />
               </Badge>
             </ListItemButton>
           </ListItem>

@@ -18,7 +18,6 @@ export type RouteHandler = {
   remoteServer: string;
   remoteServerBaseUrl: string;
   prefix: string;
-  swaggerEndpoint?: string;
   relativePath?: string;
   preferred: boolean;
   routes?: StaticRoute[];

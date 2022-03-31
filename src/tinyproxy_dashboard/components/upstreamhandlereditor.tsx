@@ -1,4 +1,5 @@
 import {
+  Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -51,14 +52,6 @@ export const UpstreamHandlerEditor: FunctionComponent<
       </Grid>
       <Grid item xs={12} sm={6}>
         <TextField
-          label="Swagger Endpoint"
-          fullWidth
-          value={handler.swaggerEndpoint}
-          disabled={!isEditing}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
           label="Path"
           fullWidth
           value={handler.relativePath}
@@ -91,6 +84,13 @@ export const UpstreamHandlerEditor: FunctionComponent<
             <MenuItem value="OPTIONS">OPTIONS</MenuItem>
           </Select>
         </FormControl>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <FormControlLabel
+          disabled
+          label="Preferred"
+          control={<Checkbox checked={handler.preferred} />}
+        />
       </Grid>
     </Grid>
   );
