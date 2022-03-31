@@ -45,10 +45,17 @@ export const RequestView: FunctionComponent = () => {
               selected={selectedIndex === req.id}
               onClick={(event) => handleRequestSelect(event, req)}
             >
-              <ListItemText
-                primary={req.path}
-                secondary={req.handler?.remoteServer}
-              />
+              <Badge
+                badgeContent={req.statusCode}
+                max={1000}
+                color="success"
+                anchorOrigin={{
+                  horizontal: 'left',
+                  vertical: 'top'
+                }}
+              >
+                <ListItemText primary={req.path} secondary={req.method} />
+              </Badge>
             </ListItemButton>
           </ListItem>
         );
