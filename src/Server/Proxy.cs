@@ -56,7 +56,7 @@ public class Proxy
 
         _app.UseCors(c =>
         {
-            c.WithOrigins($"http://localhost:{port}", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
+            c.WithOrigins($"http://localhost:{port}", "http://localhost:3000", "https://beta.easee.cloud").AllowAnyHeader().AllowAnyMethod()
                 .AllowCredentials();
         });
 

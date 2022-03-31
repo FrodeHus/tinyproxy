@@ -5,6 +5,8 @@ import {
   AccordionSummary,
   AppBar,
   Box,
+  CssBaseline,
+  Drawer,
   Toolbar,
   Typography
 } from '@mui/material';
@@ -12,6 +14,7 @@ import { RequestView } from '../components/requestlist';
 import { RequestEditor } from '../components/requesteditor';
 
 export default function Home() {
+  const drawerWidth = 300;
   return (
     <div>
       <Head>
@@ -20,21 +23,37 @@ export default function Home() {
       </Head>
 
       <main>
-        <div>
-          <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
-              <Toolbar>
-                <Typography variant="h6" color="inherit" component="div">
-                  TinyProxy Dashboard
-                </Typography>
-              </Toolbar>
-            </AppBar>
-          </Box>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar
+            position="fixed"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          >
+            <Toolbar>
+              <Typography variant="h6" color="inherit" component="div">
+                TinyProxy Dashboard
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Drawer
+            variant="permanent"
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              [`& .MuiDrawer-paper`]: {
+                width: drawerWidth,
+                boxSizing: 'border-box'
+              }
+            }}
+          >
+            <Box sx={{ overflow: 'auto' }}>
+              <RequestView />
+            </Box>
+          </Drawer>
           <Box sx={{ padding: 2 }}>
             <RequestEditor />
-            <RequestView />
           </Box>
-        </div>
+        </Box>
       </main>
     </div>
   );
