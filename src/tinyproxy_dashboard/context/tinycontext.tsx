@@ -31,7 +31,6 @@ const defaultState: IProxyState = {
       remoteServerBaseUrl: '',
       prefix: '',
       preferred: false,
-      swaggerEndpoint: '',
       routes: []
     }
   }
