@@ -6,7 +6,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  Box
 } from '@mui/material';
 
 type HeaderDetailsProps = {
@@ -33,7 +34,9 @@ export const HeaderDetails: FunctionComponent<HeaderDetailsProps> = ({
           {headerRows.map((h) => (
             <TableRow key={h.name}>
               <TableCell align="left">{h.name}</TableCell>
-              <TableCell align="left">{h.value}</TableCell>
+              <TableCell align="left" className="header-value">
+                {h.value}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -47,6 +47,7 @@ export default function Home() {
             }}
           >
             <Box sx={{ overflow: 'auto' }}>
+              <Toolbar />
               <RequestView />
             </Box>
           </Drawer>

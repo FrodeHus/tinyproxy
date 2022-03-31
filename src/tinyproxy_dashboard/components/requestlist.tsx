@@ -8,15 +8,25 @@ import {
   ListItemIcon,
   ListItemText
 } from '@mui/material';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { selectedGridRowsSelector } from '@mui/x-data-grid';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
 import { Request } from './types';
 
 export const RequestView: FunctionComponent = () => {
   const [requestData, setRequestData] = useState<Request[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const { setSelectedRequest, hubConnection } = useTinyContext();
   const addRequestRow = (data: Request) => {
     setRequestData((state) => [...state, data]);
+  };
+
+  const handleRequestSelect = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    req: Request
+  ) => {
+    setSelectedIndex(req.id);
+    if (setSelectedRequest) setSelectedRequest(req);
   };
 
   useEffect(() => {
@@ -30,20 +40,11 @@ export const RequestView: FunctionComponent = () => {
     <List>
       {requestData.map((req) => {
         return (
-          <ListItem>
-            <ListItemIcon>
-              <Badge
-                badgeContent={req.statusCode}
-                max={1000}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left'
-                }}
-              >
-                <Chip label={req.method} />
-              </Badge>
-            </ListItemIcon>
-            <ListItemButton>
+          <ListItem key={req.id}>
+            <ListItemButton
+              selected={selectedIndex === req.id}
+              onClick={(event) => handleRequestSelect(event, req)}
+            >
               <ListItemText
                 primary={req.path}
                 secondary={req.handler?.remoteServer}

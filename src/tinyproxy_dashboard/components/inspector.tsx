@@ -1,7 +1,6 @@
 import { Typography, Box, Tabs, Tab } from '@mui/material';
 import { FunctionComponent, ReactNode, SyntheticEvent, useState } from 'react';
 import { useTinyContext } from '../context/tinycontext';
-import { ContentDetails } from './contentdetails';
 import { HeaderDetails } from './headerdetails';
 import { UpstreamHandlerEditor } from './upstreamhandlereditor';
 

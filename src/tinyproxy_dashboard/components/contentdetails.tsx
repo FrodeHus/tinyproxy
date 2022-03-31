@@ -44,16 +44,20 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
     setDownloadLargeContent(true);
     if (!hubConnection || hubConnection?.state !== 'Connected') return;
     hubConnection
-        .invoke('GetContent', contentId)
-        .then((loadedContent: string) => {
-          setContent(loadedContent);
-        })
-        .catch((reason: any) => {
-          console.log(reason);
-        });
-  }
+      .invoke('GetContent', contentId)
+      .then((loadedContent: string) => {
+        setContent(loadedContent);
+      })
+      .catch((reason: any) => {
+        console.log(reason);
+      });
+  };
   useEffect(() => {
-    if (contentId && hubConnection?.state === 'Connected' && (contentLength < maxAutoDownloadSize || downloadLargeContent)) {
+    if (
+      contentId &&
+      hubConnection?.state === 'Connected' &&
+      (contentLength < maxAutoDownloadSize || downloadLargeContent)
+    ) {
       hubConnection
         .invoke('GetContent', contentId)
         .then((loadedContent: string) => {
@@ -63,13 +67,23 @@ export const ContentDetails: React.FC<ContentDetailsProps> = ({
           console.log(reason);
         });
     }
-  }, [contentId]);
+  }, [
+    contentId,
+    hubConnection,
+    maxAutoDownloadSize,
+    downloadLargeContent,
+    contentLength
+  ]);
 
   if (contentLength > maxAutoDownloadSize && !downloadLargeContent) {
     return (
       <Box>
         <Typography>Content is {Math.round(contentLength / 1024)}kB</Typography>
-        <Button variant="contained" endIcon={<Download />} onClick={manuallyFetch}>
+        <Button
+          variant="contained"
+          endIcon={<Download />}
+          onClick={manuallyFetch}
+        >
           Fetch content
         </Button>
       </Box>

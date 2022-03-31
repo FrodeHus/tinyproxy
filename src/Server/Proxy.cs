@@ -53,12 +53,15 @@ public class Proxy
         }
         _app.UseMiddleware<ResponseRewriter>();
         _app.UseMiddleware<RequestIntercept>();
-
-        _app.UseCors(c =>
+        if (_app.Environment.IsDevelopment())
         {
-            c.WithOrigins($"http://localhost:{port}", "http://localhost:3000", "https://beta.easee.cloud").AllowAnyHeader().AllowAnyMethod()
-                .AllowCredentials();
-        });
+            _app.UseCors(c =>
+            {
+                c.WithOrigins($"http://localhost:{port}", "http://localhost:3000")
+                    .AllowAnyHeader().AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        }
 
         _app.UseRouting();
         _app.UseMetricServer();
