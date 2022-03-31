@@ -1,6 +1,6 @@
 using Spectre.Console.Cli;
-using TinyProxy.Infrastructure;
-using TinyProxy.Infrastructure.OutputFormat;
+using TinyProxy.Models;
+using TinyProxy.Models.OutputFormat;
 
 namespace TinyProxy.Commands;
 

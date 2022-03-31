@@ -1,15 +1,18 @@
 import {
   Box,
+  Button,
   FormControlLabel,
-  Paper,
   Switch,
+  TextField,
   Typography
 } from '@mui/material';
-import React from 'react';
+import { Download } from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import { useTinyContext } from '../context/tinycontext';
 
 type ContentDetailsProps = {
-  content: string;
-  contentType: string;
+  contentId: string;
+  contentLength: number;
 };
 
 const decode = (str: string): string =>
@@ -25,23 +28,81 @@ const getContent = (str: string, encoded: boolean): string => {
   return decode(str);
 };
 
-
-export const ContentDetails: React.FC<ContentDetailsProps> = ({ content }) => {
-  const [encoded, setEncoded] = React.useState(true);
+export const ContentDetails: React.FC<ContentDetailsProps> = ({
+  contentId,
+  contentLength
+}) => {
+  const [encoded, setEncoded] = useState(true);
+  const [content, setContent] = useState('');
+  const [downloadLargeContent, setDownloadLargeContent] = useState(false);
+  const { hubConnection } = useTinyContext();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEncoded(event.target.checked);
   };
+  const maxAutoDownloadSize = 64 * 1024;
+  const manuallyFetch = () => {
+    setDownloadLargeContent(true);
+    if (!hubConnection || hubConnection?.state !== 'Connected') return;
+    hubConnection
+      .invoke('GetContent', contentId)
+      .then((loadedContent: string) => {
+        setContent(loadedContent);
+      })
+      .catch((reason: any) => {
+        console.log(reason);
+      });
+  };
+  useEffect(() => {
+    if (
+      contentId &&
+      hubConnection?.state === 'Connected' &&
+      (contentLength < maxAutoDownloadSize || downloadLargeContent)
+    ) {
+      hubConnection
+        .invoke('GetContent', contentId)
+        .then((loadedContent: string) => {
+          setContent(loadedContent);
+        })
+        .catch((reason: any) => {
+          console.log(reason);
+        });
+    }
+  }, [
+    contentId,
+    hubConnection,
+    maxAutoDownloadSize,
+    downloadLargeContent,
+    contentLength
+  ]);
+
+  if (contentLength > maxAutoDownloadSize && !downloadLargeContent) {
+    return (
+      <Box>
+        <Typography>Content is {Math.round(contentLength / 1024)}kB</Typography>
+        <Button
+          variant="contained"
+          endIcon={<Download />}
+          onClick={manuallyFetch}
+        >
+          Fetch content
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: '95%' }}>
-      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-        Content
-      </Typography>
       <FormControlLabel
         control={<Switch checked={encoded} onChange={handleChange} />}
         label="Encoded"
       />
       <Box sx={{ overflowWrap: 'anywhere' }}>
-        <pre>{getContent(content, encoded)}</pre>
+        <TextField
+          multiline
+          rows={20}
+          fullWidth
+          value={getContent(content, encoded)}
+        />
       </Box>
     </Box>
   );

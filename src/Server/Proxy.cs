@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Prometheus;
 using TinyProxy.Hubs;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 using TinyProxy.UI.CommandLine;
 using TinyProxy.UI.Web;
-using TinyProxy.Server;
 
 namespace TinyProxy.Server;
 
@@ -19,7 +18,7 @@ public class Proxy
 
     private WebApplication? _app;
 
-    public void Configure(List<ProxyRoute> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false,
+    public void Configure(List<UpstreamHandler> routes, LogLevel logLevel = LogLevel.Error, bool useWebUI = false,
         int port = 5000, bool verbose = false)
     {
         var builder = WebApplication.CreateBuilder();
@@ -54,12 +53,12 @@ public class Proxy
         }
         _app.UseMiddleware<ResponseRewriter>();
         _app.UseMiddleware<RequestIntercept>();
-
         if (_app.Environment.IsDevelopment())
         {
             _app.UseCors(c =>
             {
-                c.WithOrigins("http://localhost:5000", "http://localhost:3000").AllowAnyHeader().AllowAnyMethod()
+                c.WithOrigins($"http://localhost:{port}", "http://localhost:3000")
+                    .AllowAnyHeader().AllowAnyMethod()
                     .AllowCredentials();
             });
         }

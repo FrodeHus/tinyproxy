@@ -1,4 +1,4 @@
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 public class UpstreamServer
 {

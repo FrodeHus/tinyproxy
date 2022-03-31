@@ -1,6 +1,6 @@
 using Prometheus;
 
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 public static class ProxyMetrics
 {
@@ -9,8 +9,9 @@ public static class ProxyMetrics
         LabelNames = new []{"remote", "route"}
     });
     
-    public static void IncomingRequest(ProxyRoute route)
+    public static void IncomingRequest(UpstreamHandler route)
     {
+        if(string.IsNullOrEmpty(route.RemoteServer)) return;
         TotalRequests.WithLabels(route.RemoteServer, route.RelativePath).Inc();
     }
 }

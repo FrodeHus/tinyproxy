@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Yarp.ReverseProxy.Configuration;
 
-namespace TinyProxy.Infrastructure;
+namespace TinyProxy.Models;
 
 public class ProxyConfig
 {

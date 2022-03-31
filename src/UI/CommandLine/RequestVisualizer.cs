@@ -1,12 +1,12 @@
 using Spectre.Console;
-using TinyProxy.Infrastructure;
+using TinyProxy.Models;
 
 namespace TinyProxy.UI.CommandLine;
 
 public class RequestVisualizer
 {
 
-    public async void DisplayRequest(HttpContext context, ProxyRoute handler)
+    public async void DisplayRequest(HttpContext context, UpstreamHandler handler)
     {
         var verb = context.Request.Method;
         var path = context.Request.Path;
