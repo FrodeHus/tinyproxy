@@ -5,6 +5,7 @@ namespace TinyProxy.Models;
 
 public class ProxyConfig
 {
+    public string PluginPath { get; set; } = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "tinyproxy", "plugins");
     public List<UpstreamServer> UpstreamServers { get; set; } = new();
     public static void Initialize(ProxyConfigure config)
     {
@@ -36,8 +37,8 @@ public class ProxyConfig
                 }
             }
         };
-        
-        var newConfig = JsonSerializer.Serialize(proxyConfig, new JsonSerializerOptions{WriteIndented = true});
+
+        var newConfig = JsonSerializer.Serialize(proxyConfig, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(config.ConfigFile, newConfig);
     }
 }

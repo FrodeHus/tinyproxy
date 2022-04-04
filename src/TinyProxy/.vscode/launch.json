@@ -7,7 +7,7 @@
 			"request": "launch",
 			"preLaunchTask": "build",
 			"program": "${workspaceFolder}/bin/Debug/net6.0/TinyProxy.dll",
-			"args": ["start", "-v"],
+			"args": ["start", "-v", "-u"],
 			"cwd": "${workspaceFolder}",
 			"stopAtEntry": false,
 			"console": "internalConsole"
