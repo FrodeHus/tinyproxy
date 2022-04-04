@@ -22,14 +22,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         version: 12.x
-    - run: cd src/tinyproxy_dashboard && npm install && npm run build
+    - run: cd src/TinyProxy.WebUI && npm install && npm run build
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore src/TinyProxy.csproj
+      run: dotnet restore src/TinyProxy/TinyProxy.csproj
     - name: Build
-      run: dotnet build --no-restore src/TinyProxy.csproj
+      run: dotnet build --no-restore src/TinyProxy/TinyProxy.csproj
     - name: Test
-      run: dotnet test --no-build --verbosity normal src/TinyProxy.csproj
+      run: dotnet test --no-build --verbosity normal src/TinyProxy/TinyProxy.csproj

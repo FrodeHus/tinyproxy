@@ -36,8 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="tinyproxy_dashboard\out\**\*" />
-    <Content Include="tinyproxy_dashboard\out\**\*" />
+	<EmbeddedResource Include="..\TinyProxy.WebUI\out\**\*" />
+    	<Content Include="..\TinyProxy.WebUI\out\**\*" />
   </ItemGroup>
 
 </Project>
