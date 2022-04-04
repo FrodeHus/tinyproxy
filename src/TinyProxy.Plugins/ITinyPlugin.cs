@@ -4,5 +4,6 @@ public interface ITinyPlugin
 {
     string Name { get; }
     string Description { get; }
-    Task HandleAsync(HttpContext context);
+    Task HandleRequestAsync(Stream requestBody);
+    Task HandleResponseAsync(Stream responseBody);
 }

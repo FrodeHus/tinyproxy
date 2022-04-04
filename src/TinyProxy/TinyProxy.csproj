@@ -40,4 +40,8 @@
     	<Content Include="..\TinyProxy.WebUI\out\**\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TinyProxy.Plugins\TinyProxy.Plugins.csproj" />
+  </ItemGroup>
+
 </Project>
