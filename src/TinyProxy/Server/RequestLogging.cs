@@ -21,7 +21,7 @@ public class RequestLogging
         await requestDelegate(httpContext);
     }
 
-    private async Task LogRequest(HttpContext httpContext)
+    private Task LogRequest(HttpContext httpContext)
     {
         var httpRequest = httpContext.Request;
         var requestHeader = new Rule($"[#00ffff]==>[/] [#87d7ff]{httpRequest.Path}[/]").Alignment(Justify.Left);
@@ -32,22 +32,22 @@ public class RequestLogging
         }
 
 
-        if (httpRequest.ContentLength > 0)
+        if (!(httpRequest.ContentLength > 0)) return Task.CompletedTask;
+        AnsiConsole.Markup($"[{Color.Cornsilk1}]Content: [/]");
+        var cacheId = httpContext.Items["request"] as string;
+        if (string.IsNullOrEmpty(cacheId))
         {
-            AnsiConsole.Markup($"[{Color.Cornsilk1}]Content: [/]");
-            var cacheId = httpContext.Items["request"] as string;
-            if (string.IsNullOrEmpty(cacheId))
-            {
-                Console.WriteLine("could not find id for current request");
-                return;
-            }
-
-            var encodedContent = cache.Get<string>(cacheId);
-            var decodedBytes = Convert.FromBase64String(encodedContent);
-            var content = Encoding.UTF8.GetString(decodedBytes);
-            var result = PayloadVisualizer.Visualize(httpRequest.ContentType ?? "*/*", content);
-            Console.WriteLine(result);
-            httpRequest.Body.Position = 0;
+            Console.WriteLine("could not find id for current request");
+            return Task.CompletedTask;
         }
+
+        var encodedContent = cache.Get<string>(cacheId);
+        var decodedBytes = Convert.FromBase64String(encodedContent);
+        var content = Encoding.UTF8.GetString(decodedBytes);
+        var result = PayloadVisualizer.Visualize(httpRequest.ContentType ?? "*/*", content);
+        Console.WriteLine(result);
+        httpRequest.Body.Position = 0;
+
+        return Task.CompletedTask;
     }
 }

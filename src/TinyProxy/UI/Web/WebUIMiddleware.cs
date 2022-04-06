@@ -12,7 +12,7 @@ public class WebUIMiddleware
     private readonly RequestDelegate _next;
     private readonly WebUIOptions _options;
     private readonly StaticFileMiddleware _staticFileMiddleware;
-    private const string EmbeddedFileNamespace = "tinyproxy_dashboard/out";
+    private const string EmbeddedFileNamespace = ".";
 
     public WebUIMiddleware(RequestDelegate next, IWebHostEnvironment hostingEnv,
         ILoggerFactory loggerFactory,
@@ -27,27 +27,29 @@ public class WebUIMiddleware
     {
         var httpMethod = httpContext.Request.Method;
         var path = httpContext.Request.Path.Value;
-        if (!Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?", RegexOptions.IgnoreCase))
+        if (!string.IsNullOrEmpty(path) && !Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?", RegexOptions.IgnoreCase))
         {
             await _next(httpContext);
             return;
         }
         
-        if (httpMethod == "GET" &&
-            Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
+        if (httpMethod == "GET" && !string.IsNullOrEmpty(path))
         {
-            var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
-                ? "index.html"
-                : $"{path.Split('/').Last()}/index.html";
+            if (Regex.IsMatch(path, $"^/?{Regex.Escape(_options.RelativePath)}/?$", RegexOptions.IgnoreCase))
+            {
+                var relativeIndexUrl = string.IsNullOrEmpty(path) || path.EndsWith("/")
+                    ? "index.html"
+                    : $"{path.Split('/').Last()}/index.html";
 
-            RespondWithRedirect(httpContext.Response, relativeIndexUrl);
-            return;
+                RespondWithRedirect(httpContext.Response, relativeIndexUrl);
+                return;
+            }
         }
 
         await _staticFileMiddleware.Invoke(httpContext);
     }
 
-    private void RespondWithRedirect(HttpResponse response, string location)
+    private static void RespondWithRedirect(HttpResponse response, string location)
     {
         response.StatusCode = 301;
         response.Headers["Location"] = location;

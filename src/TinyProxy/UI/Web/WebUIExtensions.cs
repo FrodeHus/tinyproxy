@@ -8,7 +8,7 @@ public static class WebUIExtensions
         return app.UseWebUI(options);
     }
 
-    public static IApplicationBuilder UseWebUI(this IApplicationBuilder app, Action<WebUIOptions> setup = null)
+    public static IApplicationBuilder UseWebUI(this IApplicationBuilder app, Action<WebUIOptions>? setup = null)
     {
         var options = new WebUIOptions();
         using var scope = app.ApplicationServices.CreateScope();

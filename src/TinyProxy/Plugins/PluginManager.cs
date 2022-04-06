@@ -9,6 +9,7 @@ public class PluginManager
         var pluginAssembly = LoadPlugin(pluginRelativePath);
         var plugins = ActivatePlugins(pluginAssembly);
     }
+    
     private IEnumerable<ITinyPlugin> ActivatePlugins(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())

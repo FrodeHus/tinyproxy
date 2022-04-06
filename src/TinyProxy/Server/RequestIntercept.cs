@@ -7,22 +7,22 @@ public class RequestIntercept
 {
     private readonly RequestDelegate _requestDelegate;
     private readonly IMemoryCache _cache;
-    public RequestIntercept(RequestDelegate reguestDelegate, IMemoryCache cache)
+    public RequestIntercept(RequestDelegate requestDelegate, IMemoryCache cache)
     {
-        _requestDelegate = reguestDelegate;
+        _requestDelegate = requestDelegate;
         _cache = cache;
     }
     public async Task InvokeAsync(HttpContext httpContext)
     {
         httpContext.Request.EnableBuffering();
-        HttpResponse httpResponse = httpContext.Response;
-        Stream originalBody = httpResponse.Body;
+        var httpResponse = httpContext.Response;
+        var originalBody = httpResponse.Body;
 
         try
         {
             await StoreRequest(httpContext);
 
-            using var memoryStream = new MemoryStream();
+            await using var memoryStream = new MemoryStream();
             httpResponse.Body = memoryStream;
 
             await _requestDelegate(httpContext);

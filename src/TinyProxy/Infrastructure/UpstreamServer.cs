@@ -6,8 +6,8 @@ public class UpstreamServer
     /// Display name for the server (informational only)
     /// </summary>
     public string Name { get; set; } = "<not set>";
-    public Uri Url { get; set; } = new Uri("http://localhost:5000");
-
+    public Uri? Url { get; set; }
+    public Uri? LivenessProbe { get; set; }
     /// <summary>
     /// Adds a prefix for all routes for this upstream server
     /// </summary>
@@ -23,5 +23,5 @@ public class UpstreamServer
     /// <summary>
     /// Static routes that are not defined in Swagger
     /// </summary>
-    public List<StaticRoute> Routes { get; set; } = new List<StaticRoute>();
+    public List<StaticRoute> Routes { get; set; } = new();
 }

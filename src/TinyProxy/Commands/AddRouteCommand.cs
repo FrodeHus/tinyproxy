@@ -8,6 +8,8 @@ public class AddRouteCommand : Command<AddRouteSettings>
 {
     public override int Execute(CommandContext context, AddRouteSettings settings)
     {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        if (settings == null) throw new ArgumentNullException(nameof(settings));
         if (string.IsNullOrEmpty(settings.ServerName)) throw new ArgumentNullException(nameof(settings.ServerName));
         if (string.IsNullOrEmpty(settings.Route)) throw new ArgumentNullException(nameof(settings.Route));
 

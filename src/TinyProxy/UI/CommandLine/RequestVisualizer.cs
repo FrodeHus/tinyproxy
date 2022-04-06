@@ -6,7 +6,7 @@ namespace TinyProxy.UI.CommandLine;
 public class RequestVisualizer
 {
 
-    public async void DisplayRequest(HttpContext context, UpstreamHandler handler)
+    public void DisplayRequest(HttpContext context, UpstreamHandler handler)
     {
         var verb = context.Request.Method;
         var path = context.Request.Path;
@@ -17,10 +17,6 @@ public class RequestVisualizer
             >= 400 => Color.Orange1,
             _ => Color.Green3
         };
-        if (path.HasValue && path.Value.Length > 60)
-        {
-            path = path.Value[..57] + "...";
-        }
 
         var handlerPath = handler.RemoteServerBaseUrl.TrimEnd('/') + handler.RelativePath;
         var labelUpstreamResponse = "Upstream response";
