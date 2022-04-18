@@ -6,8 +6,6 @@
 
 This project was born out of a need for a better local developer experience (IMHO) and thus the limitations of this proxy is **local**.
 
-TinyProxy will only bind to localhost - it is meant as a local development proxy.
-
 ![TinyProxy WebUI](docs/tinyproxy-webui.png)
 ## Installation
 
